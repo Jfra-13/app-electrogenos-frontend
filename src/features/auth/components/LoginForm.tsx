@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { getApiBaseUrl } from "../../../lib/api/baseUrl";
 
 export default function LoginForm() {
   const [username, setUsername] = useState("");
@@ -12,29 +13,33 @@ export default function LoginForm() {
     setError("");
 
     try {
-      // --- Lógica real de Conexión Backend (Comentada) ---
-      // const res = await fetch("http://tu-api.com/api/v1/auth/login", {
-      //   method: "POST",
-      //   headers: { "Content-Type": "application/json" },
-      //   body: JSON.stringify({ username, password }) // LoginRequestDTO
-      // });
-      // const data = await res.json(); // AuthResponseDTO
-      // if (!res.ok) throw new Error("Credenciales inválidas");
-      // document.cookie = `jwt_token=${data.token}; path=/; max-age=86400`;
+      const url = new URL("/api/v1/auth/login", getApiBaseUrl());
+      const res = await fetch(url.toString(), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
 
-      // --- Lógica Simulada para Frontend ---
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulamos latencia
+      const data = (await res.json()) as {
+        token?: string;
+        message?: string;
+      };
 
-      if (username === "admin" && password === "admin") {
-        // Seteamos la cookie simulando el token guardado del backend
-        document.cookie =
-          "jwt_token=mock_jwt_token_12345; path=/; max-age=86400";
-        window.location.href = "/admin"; // Redirige a la Intranet que ahora está desbloqueada
-      } else {
+      if (!res.ok || !data.token) {
+        throw new Error(data.message || "Credenciales inválidas");
+      }
+
+      const cookieValue = encodeURIComponent(data.token);
+      document.cookie = `jwt_token=${cookieValue}; path=/; max-age=3600; SameSite=Lax`;
+
+      const cookieOk = document.cookie.includes("jwt_token=");
+      if (!cookieOk) {
         throw new Error(
-          "Usuario o contraseña incorrectos. (Pista: admin / admin)",
+          "No se pudo guardar la sesión. Verifica bloqueos de cookies.",
         );
       }
+
+      window.location.href = "/admin";
     } catch (err: any) {
       setError(err.message);
     } finally {

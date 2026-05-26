@@ -1,5 +1,7 @@
 ---
+export const prerender = false;
 import IntranetLayout from "../../layouts/IntranetLayout.astro";
+import InventoryManager from "../../features/inventory/components/InventoryManager";
 ---
 
 <IntranetLayout title="Panel de Control">
@@ -10,13 +12,6 @@ import IntranetLayout from "../../layouts/IntranetLayout.astro";
       satisfactoriamente.
     </p>
 
-    <div
-      class="bg-white p-8 rounded-2xl border-gray-100 shadow-sm flex items-center justify-center h-64 border-dashed border-2"
-    >
-      <!-- Placeholder para próximos MVPs -->
-      <span class="text-gray-400 font-medium"
-        >Aquí ubicaremos el CRUD de Equipos...</span
-      >
-    </div>
+    <InventoryManager client:visible />
   </div>
 </IntranetLayout>

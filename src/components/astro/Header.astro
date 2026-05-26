@@ -1,0 +1,245 @@
+---
+// Header estático: No se usan islas de Astro, renderizado 100% en el servidor.
+// El comportamiento interactivo (scroll y menú móvil) se maneja con Vanilla JS en la etiqueta <script>.
+---
+
+<header
+  id="main-header"
+  class="fixed top-0 left-0 w-full z-50 bg-white transition-all duration-300"
+>
+  <nav
+    aria-label="Global"
+    class="mx-auto flex max-w-7xl items-center justify-between p-3 lg:px-8"
+  >
+    <!-- Logo e Isotipo -->
+    <div class="flex lg:flex-1">
+      <a href="#" class="-m-1 p-1 flex items-center gap-1">
+        <span class="sr-only">Electrogen</span>
+        <img
+          src="/assets/icons/logo.svg"
+          alt="Electrogen"
+          class="h-16 w-auto"
+        />
+        <span class="text-orange-500 font-bold text-xl tracking-wider"
+          >ELECTROGEN</span
+        >
+      </a>
+    </div>
+
+    <!-- Botón Menú Móvil -->
+    <div class="flex lg:hidden">
+      <button
+        type="button"
+        id="open-mobile-menu"
+        class="-m-2.5 inline-flex items-center justify-center rounded-md p-2.5 text-gray-700 hover:text-orange-500 transition-colors"
+      >
+        <span class="sr-only">Abrir menú principal</span>
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="1.5"
+          aria-hidden="true"
+          class="size-6"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Navegación Desktop -->
+    <div class="hidden lg:flex lg:gap-x-12">
+      <a
+        href="#coleccion"
+        class="text-sm/6 font-semibold text-gray-900 transition-all duration-300 hover:text-orange-500 hover:underline decoration-orange-500 underline-offset-8"
+        >Colección</a
+      >
+      <a
+        href="#productos"
+        class="text-sm/6 font-semibold text-gray-900 transition-all duration-300 hover:text-orange-500 hover:underline decoration-orange-500 underline-offset-8"
+        >Productos</a
+      >
+      <a
+        href="#nosotros"
+        class="text-sm/6 font-semibold text-gray-900 transition-all duration-300 hover:text-orange-500 hover:underline decoration-orange-500 underline-offset-8"
+        >Nosotros</a
+      >
+      <a
+        href="#contacto"
+        class="text-sm/6 font-semibold text-gray-900 transition-all duration-300 hover:text-orange-500 hover:underline decoration-orange-500 underline-offset-8"
+        >Contacto</a
+      >
+    </div>
+
+    <!-- Botón Intranet Desktop -->
+    <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+      <a
+        href="/admin"
+        class="text-sm/6 font-semibold px-5 py-2.5 rounded-lg text-orange-500 transition-colors duration-300 hover:bg-orange-500 hover:text-white shadow-sm"
+      >
+        Intranet <span aria-hidden="true">&rarr;</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Barra de progreso de lectura (Scroll) -->
+  <div
+    id="scroll-progress-bar"
+    class="absolute bottom-0 left-0 h-1 bg-orange-500 w-0 transition-all duration-75"
+  >
+  </div>
+
+  <!-- Menú Móvil (Simplificado sin web components extraños) -->
+  <div
+    id="mobile-menu"
+    class="hidden relative z-50 lg:hidden"
+    role="dialog"
+    aria-modal="true"
+  >
+    <!-- Overlay de fondo -->
+    <div
+      class="fixed inset-0 bg-gray-900/80 backdrop-blur-sm transition-opacity"
+    >
+    </div>
+
+    <!-- Panel del menú -->
+    <div
+      class="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white p-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10"
+    >
+      <div class="flex items-center justify-between">
+        <a href="#" class="-m-1.5 p-1.5 flex items-center gap-3">
+          <span class="sr-only">Electrogen</span>
+          <img
+            src="/assets/icons/logo.svg"
+            alt="Electrogen"
+            class="h-8 w-auto"
+          />
+          <span class="text-orange-500 font-bold text-lg">ELECTROGEN</span>
+        </a>
+        <button
+          type="button"
+          id="close-mobile-menu"
+          class="-m-2.5 rounded-md p-2.5 text-gray-700 hover:text-orange-500 transition-colors"
+        >
+          <span class="sr-only">Cerrar menú</span>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            aria-hidden="true"
+            class="size-6"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M6 18 18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="mt-6 flow-root">
+        <div class="-my-6 divide-y divide-gray-500/10">
+          <div class="space-y-2 py-6">
+            <a
+              href="#coleccion"
+              class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 hover:text-orange-500 transition-colors"
+              >Colección</a
+            >
+            <a
+              href="#productos"
+              class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 hover:text-orange-500 transition-colors"
+              >Productos</a
+            >
+            <a
+              href="#nosotros"
+              class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 hover:text-orange-500 transition-colors"
+              >Nosotros</a
+            >
+            <a
+              href="#contacto"
+              class="-mx-3 block rounded-lg px-3 py-2 text-base/7 font-semibold text-gray-900 hover:bg-gray-50 hover:text-orange-500 transition-colors"
+              >Contacto</a
+            >
+          </div>
+          <div class="py-6">
+            <a
+              href="/admin"
+              class="-mx-3 block rounded-lg px-3 py-2.5 text-base/7 font-semibold text-orange-500 border border-orange-500 text-center transition-colors hover:bg-orange-500 hover:text-white"
+            >
+              Acceso Intranet
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Lógica de cliente en Astro
+  document.addEventListener("DOMContentLoaded", () => {
+    // Referencias al DOM
+    const header = document.getElementById("main-header");
+    const progressBar = document.getElementById("scroll-progress-bar");
+    const openBtn = document.getElementById("open-mobile-menu");
+    const closeBtn = document.getElementById("close-mobile-menu");
+    const mobileMenu = document.getElementById("mobile-menu");
+
+    // 1. Efecto Scroll (Sombra, Blur y Barra de Progreso)
+    window.addEventListener("scroll", () => {
+      const scrollTop =
+        document.documentElement.scrollTop || document.body.scrollTop;
+
+      // Control visual del header (fondo desenfocado y sombra)
+      if (scrollTop > 20) {
+        if (header) {
+          header.classList.add("shadow-md", "bg-white/80", "backdrop-blur-md");
+          header.classList.remove("bg-white");
+        }
+      } else {
+        if (header) {
+          header.classList.remove(
+            "shadow-md",
+            "bg-white/80",
+            "backdrop-blur-md",
+          );
+          header.classList.add("bg-white");
+        }
+      }
+
+      // Control de la barra de progreso inferior
+      const scrollHeight =
+        document.documentElement.scrollHeight || document.body.scrollHeight;
+      const clientHeight =
+        document.documentElement.clientHeight || window.innerHeight;
+      const scrolledPercentage =
+        (scrollTop / (scrollHeight - clientHeight)) * 100;
+
+      if (progressBar) {
+        progressBar.style.width = `${scrolledPercentage}%`;
+      }
+    });
+
+    // 2. Control del Menú Móvil
+    if (openBtn && closeBtn && mobileMenu) {
+      openBtn.addEventListener("click", () => {
+        mobileMenu.classList.remove("hidden");
+      });
+
+      closeBtn.addEventListener("click", () => {
+        mobileMenu.classList.add("hidden");
+      });
+
+      // Cierra el menú al hacer click en cualquiera de los enlaces (ideal para navegación single-page con #)
+      const mobileLinks = mobileMenu.querySelectorAll("a");
+      mobileLinks.forEach((link) => {
+        link.addEventListener("click", () => {
+          mobileMenu.classList.add("hidden");
+        });
+      });
+    }
+  });
+</script>

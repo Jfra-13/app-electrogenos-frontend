@@ -1,1 +1,18 @@
 @import "tailwindcss";
+
+:root {
+  /* Paleta de colores globales de la empresa */
+  --color-primary: #fcfcfc; /* Azul corporativo de ejemplo */
+  --color-primary-hover: #828d92;
+  --color-background: #ffffff;
+  --color-text: #1f2937;
+
+  /* Tipografía global */
+  --font-base: "Inter", system-ui, -apple-system, sans-serif;
+}
+
+html {
+  font-family: var(--font-base);
+  color: var(--color-text);
+  background-color: var(--color-background);
+}

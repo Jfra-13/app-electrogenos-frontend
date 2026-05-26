@@ -1,17 +1,31 @@
 ---
-
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/astro/Header.astro";
+import Hero from "../components/astro/Hero.astro";
+import CatalogApp from "../features/catalog/components/CatalogApp";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout title="Electrogen">
+  <Header />
+  <main>
+    <Hero />
+
+    <!-- MVP 2: Sección de Productos Interactiva -->
+    <section id="productos" class="py-20 bg-gray-50/50 scroll-mt-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-4xl font-bold text-blue-950 mb-4">
+            Catálogo de Equipos
+          </h2>
+          <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+            Explora nuestra línea de grupos electrógenos, filtra según tus
+            necesidades de combustible y encuentra la potencia ideal.
+          </p>
+        </div>
+
+        <!-- Isla con hidratación inmediata (client:load) -->
+        <CatalogApp client:load />
+      </div>
+    </section>
+  </main>
+</Layout>

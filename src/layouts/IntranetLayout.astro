@@ -1,0 +1,30 @@
+---
+import "../styles/global.css";
+import Sidebar from "../features/admin/components/Sidebar.astro";
+import UserDropdown from "../features/admin/components/UserDropdown";
+
+interface Props {
+  title: string;
+}
+const { title } = Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title} - Intranet Electrogen</title>
+  </head>
+  <body class="bg-gray-50 text-gray-900 antialiased pl-64">
+    <Sidebar />
+    <header
+      class="h-20 bg-white border-b border-gray-200 flex items-center justify-end px-8 sticky top-0 z-10"
+    >
+      <UserDropdown client:load />
+    </header>
+    <main class="p-8">
+      <slot />
+    </main>
+  </body>
+</html>

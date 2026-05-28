@@ -1,0 +1,11 @@
+---
+export const prerender = false;
+import IntranetLayout from "../../../layouts/IntranetLayout.astro";
+import SalesHistory from "../../../features/sales/components/SalesHistory";
+---
+
+<IntranetLayout title="Historial de Ventas">
+  <div class="max-w-6xl mx-auto">
+    <SalesHistory client:visible />
+  </div>
+</IntranetLayout>

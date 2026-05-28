@@ -7,6 +7,25 @@ import LoginForm from "../features/auth/components/LoginForm";
   <div
     class="min-h-screen flex items-center justify-center bg-gray-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden"
   >
+    <a
+      href="/"
+      class="absolute top-6 left-6 inline-flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-orange-500 transition-colors"
+    >
+      <svg
+        class="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M15 19l-7-7 7-7"></path>
+      </svg>
+      Volver al inicio
+    </a>
     <!-- Formulario Interactivo Client-Side -->
     <LoginForm client:load />
   </div>

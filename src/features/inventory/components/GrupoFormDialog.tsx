@@ -16,6 +16,7 @@ type FormState = {
   pMax: string;
   insonorizado: boolean;
   capo: boolean;
+  stock: string;
   esMovil: boolean;
   cantidadRuedas: string;
   materialEje: MaterialEje | "";
@@ -31,6 +32,7 @@ function toFormState(grupo?: GrupoElectrogenoDTO): FormState {
     pMax: typeof grupo?.pMax === "number" ? String(grupo.pMax) : "",
     insonorizado: !!grupo?.insonorizado,
     capo: !!grupo?.capo,
+    stock: typeof grupo?.stock === "number" ? String(grupo.stock) : "",
     esMovil: grupo?.esMovil ?? grupo?.tipoGrupo === "Móvil",
     cantidadRuedas:
       typeof grupo?.cantidadRuedas === "number"
@@ -46,6 +48,7 @@ function toCreateDTO(state: FormState): GrupoElectrogenoCreateDTO {
       ? undefined
       : Number(state.cantidadRuedas)
     : undefined;
+  const stock = state.stock.trim() === "" ? undefined : Number(state.stock);
 
   return {
     codigo: state.codigo.trim(),
@@ -56,6 +59,7 @@ function toCreateDTO(state: FormState): GrupoElectrogenoCreateDTO {
     pMax: Number(state.pMax),
     insonorizado: state.insonorizado,
     capo: state.capo,
+    stock,
     esMovil: state.esMovil,
     cantidadRuedas,
     materialEje: state.esMovil ? state.materialEje || undefined : undefined,
@@ -94,6 +98,7 @@ export default function GrupoFormDialog({
     if (!state.vidaUtil.trim()) return false;
     if (!state.pMin.trim()) return false;
     if (!state.pMax.trim()) return false;
+    if (!state.stock.trim()) return false;
     const vidaUtil = Number(state.vidaUtil);
     if (!Number.isFinite(vidaUtil) || vidaUtil <= 0) return false;
     const pMin = Number(state.pMin);
@@ -101,6 +106,8 @@ export default function GrupoFormDialog({
     if (!Number.isFinite(pMin) || pMin < 0) return false;
     if (!Number.isFinite(pMax) || pMax <= 0) return false;
     if (pMax < pMin) return false;
+    const stock = Number(state.stock);
+    if (!Number.isFinite(stock) || stock < 0) return false;
     if (state.esMovil) {
       if (!state.cantidadRuedas.trim()) return false;
       if (!state.materialEje) return false;
@@ -191,6 +198,23 @@ export default function GrupoFormDialog({
                   inputMode="numeric"
                   className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
                   placeholder="10"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Stock (unidades)
+                </label>
+                <input
+                  value={state.stock}
+                  onChange={(e) =>
+                    setState((s) => ({ ...s, stock: e.target.value }))
+                  }
+                  inputMode="numeric"
+                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                  placeholder="5"
                 />
               </div>
             </div>

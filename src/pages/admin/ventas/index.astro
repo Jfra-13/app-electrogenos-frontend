@@ -1,0 +1,11 @@
+---
+export const prerender = false;
+import IntranetLayout from "../../../layouts/IntranetLayout.astro";
+import SalesManager from "../../../features/sales/components/SalesManager";
+---
+
+<IntranetLayout title="Ventas">
+  <div class="max-w-6xl mx-auto">
+    <SalesManager client:visible />
+  </div>
+</IntranetLayout>

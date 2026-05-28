@@ -1,0 +1,12 @@
+---
+export const prerender = false;
+import IntranetLayout from "../../layouts/IntranetLayout.astro";
+import CatalogApp from "../../features/catalog/components/CatalogApp";
+---
+
+<IntranetLayout title="Catalogo">
+  <div class="max-w-6xl mx-auto">
+    <h1 class="text-2xl font-bold text-blue-950 mb-4">Catalogo</h1>
+    <CatalogApp client:visible />
+  </div>
+</IntranetLayout>

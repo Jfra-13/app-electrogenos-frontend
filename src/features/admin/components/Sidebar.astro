@@ -3,45 +3,332 @@
 ---
 
 <aside
-  class="w-64 bg-blue-950 text-white flex flex-col h-screen fixed left-0 top-0 shadow-xl z-20"
+  id="sidebar"
+  class="sidebar bg-white text-gray-700 border-r border-gray-200 shadow-sm"
+  data-collapsed="true"
 >
-  <div class="p-6 border-b border-blue-900/50">
+  <div class="sidebar-header">
     <div class="flex items-center gap-3">
-      <span class="text-orange-500 font-bold text-xl tracking-wider"
-        >ELECTROGEN</span
+      <div
+        class="h-10 w-10 rounded-xl bg-orange-500 text-white flex items-center justify-center font-bold"
       >
+        E
+      </div>
+      <div class="sidebar-label">
+        <span class="text-orange-500 font-bold text-lg tracking-wider"
+          >ELECTROGEN</span
+        >
+        <p
+          class="text-xs text-gray-400 mt-1 uppercase tracking-widest font-semibold"
+        >
+          Intranet / Admin
+        </p>
+      </div>
     </div>
-    <p
-      class="text-xs text-blue-300 mt-1 uppercase tracking-widest font-semibold"
-    >
-      Intranet / Admin
-    </p>
-  </div>
 
-  <nav class="flex-1 px-4 py-6 space-y-2">
-    <a
-      href="/admin"
-      class="flex items-center gap-3 px-4 py-3 rounded-lg bg-blue-900/50 text-white font-medium border border-blue-800 transition-colors"
+    <button
+      id="sidebar-toggle"
+      type="button"
+      class="sidebar-toggle"
+      aria-label="Colapsar barra lateral"
+      title="Colapsar barra lateral"
     >
       <svg
-        class="w-5 h-5 text-orange-500"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        class="h-4 w-4"
+        aria-hidden="true"
+      >
+        <path d="M15 18l-6-6 6-6"></path>
+      </svg>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <a href="/admin" class="sidebar-link">
+      <svg
+        class="h-5 w-5"
         fill="none"
         stroke="currentColor"
         viewBox="0 0 24 24"
-        ><path
+        aria-hidden="true"
+      >
+        <path
           stroke-linecap="round"
           stroke-linejoin="round"
           stroke-width="2"
           d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-        ></path></svg
-      >
-      Dashboard
+        ></path>
+      </svg>
+      <span class="sidebar-label">Dashboard</span>
     </a>
-    <a
-      href="#"
-      class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-200 font-medium transition-colors hover:bg-blue-900/30 hover:text-white"
-    >
-      Catálogo
+
+    <a href="/admin/catalogo" class="sidebar-link">
+      <svg
+        class="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M4 7h16M4 12h16M4 17h16"></path>
+      </svg>
+      <span class="sidebar-label">Catalogo</span>
+    </a>
+
+    <a href="/admin/ventas" class="sidebar-link">
+      <svg
+        class="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 8c-3.314 0-6 2.239-6 5s2.686 5 6 5 6-2.239 6-5-2.686-5-6-5z"
+        ></path>
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 6V4m0 16v-2"></path>
+      </svg>
+      <span class="sidebar-label">Ventas</span>
+    </a>
+
+    <a href="/admin/ventas/historial" class="sidebar-link">
+      <svg
+        class="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <span class="sidebar-label">Historial</span>
     </a>
   </nav>
+
+  <div class="sidebar-footer">
+    <a id="sidebar-login" href="/login" class="sidebar-action">
+      <svg
+        class="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+        ></path>
+      </svg>
+      <span class="sidebar-label">Iniciar sesion</span>
+    </a>
+
+    <button id="sidebar-logout" type="button" class="sidebar-action">
+      <svg
+        class="h-4 w-4"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+        ></path>
+      </svg>
+      <span class="sidebar-label">Cerrar sesion</span>
+    </button>
+  </div>
 </aside>
+
+<style>
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 16rem;
+    display: flex;
+    flex-direction: column;
+    z-index: 20;
+    transition: width 200ms ease;
+  }
+
+  .sidebar[data-collapsed="true"] {
+    width: 4.5rem;
+  }
+
+  .sidebar[data-collapsed="true"]:hover {
+    width: 16rem;
+  }
+
+  .sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .sidebar-toggle {
+    height: 2rem;
+    width: 2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.75rem;
+    color: #6b7280;
+    transition:
+      background 150ms ease,
+      transform 150ms ease;
+  }
+
+  .sidebar-toggle:hover {
+    background: #f3f4f6;
+  }
+
+  .sidebar[data-collapsed="true"] .sidebar-toggle {
+    transform: rotate(180deg);
+  }
+
+  .sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1rem 0.75rem;
+    flex: 1;
+  }
+
+  .sidebar-link,
+  .sidebar-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 0.75rem;
+    color: #374151;
+    font-weight: 500;
+    transition:
+      background 150ms ease,
+      color 150ms ease;
+  }
+
+  .sidebar-link:hover,
+  .sidebar-action:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+
+  .sidebar-footer {
+    padding: 1rem 0.75rem 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .sidebar-label {
+    white-space: nowrap;
+    transition:
+      opacity 150ms ease,
+      transform 150ms ease;
+  }
+
+  .sidebar[data-collapsed="true"] .sidebar-label {
+    opacity: 0;
+    transform: translateX(-6px);
+    width: 0;
+    overflow: hidden;
+  }
+
+  .sidebar[data-collapsed="true"]:hover .sidebar-label {
+    opacity: 1;
+    transform: translateX(0);
+    width: auto;
+  }
+
+  .sidebar[data-collapsed="true"] .sidebar-toggle,
+  .sidebar[data-collapsed="true"]:hover .sidebar-toggle {
+    margin-left: auto;
+  }
+
+  .sidebar-hidden {
+    display: none;
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const sidebar = document.getElementById("sidebar");
+    const toggle = document.getElementById("sidebar-toggle");
+    const loginButton = document.getElementById("sidebar-login");
+    const logoutButton = document.getElementById("sidebar-logout");
+
+    const hasToken = document.cookie
+      .split(";")
+      .map((c) => c.trim())
+      .some((c) => c.startsWith("jwt_token="));
+
+    if (loginButton && logoutButton) {
+      if (hasToken) {
+        loginButton.classList.add("sidebar-hidden");
+      } else {
+        logoutButton.classList.add("sidebar-hidden");
+      }
+    }
+
+    const stored = localStorage.getItem("sidebar_collapsed");
+    let collapsedState = stored ? stored === "true" : true;
+
+    const applyCollapsed = () => {
+      if (!sidebar) return;
+      sidebar.setAttribute("data-collapsed", collapsedState ? "true" : "false");
+      localStorage.setItem("sidebar_collapsed", String(collapsedState));
+      document.documentElement.style.setProperty(
+        "--sidebar-width",
+        collapsedState ? "4.5rem" : "16rem",
+      );
+    };
+
+    applyCollapsed();
+
+    if (toggle) {
+      toggle.addEventListener("click", () => {
+        collapsedState = !collapsedState;
+        applyCollapsed();
+      });
+    }
+
+    if (logoutButton) {
+      logoutButton.addEventListener("click", () => {
+        document.cookie =
+          "jwt_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+        window.location.href = "/login";
+      });
+    }
+  });
+</script>

@@ -19,6 +19,24 @@ function getAuthHeaders(): HeadersInit {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+async function getErrorMessage(res: Response, fallback: string) {
+  try {
+    const data = (await res.json()) as { message?: string } | undefined;
+    if (data?.message) return data.message;
+  } catch (e) {
+    // Ignore JSON parse errors and fall back to text.
+  }
+
+  try {
+    const text = await res.text();
+    if (text) return text;
+  } catch (e) {
+    // Ignore read errors.
+  }
+
+  return fallback;
+}
+
 export async function listGruposElectrogenos(options?: {
   page?: number;
   size?: number;
@@ -39,7 +57,11 @@ export async function listGruposElectrogenos(options?: {
   });
 
   if (!res.ok) {
-    throw new Error(`Error listando grupos electrógenos (${res.status})`);
+    const message = await getErrorMessage(
+      res,
+      `Error listando grupos electrógenos (${res.status})`,
+    );
+    throw new Error(message);
   }
 
   return (await res.json()) as PaginatedResponseDTO<GrupoElectrogenoDTO>;
@@ -59,7 +81,11 @@ export async function createGrupoElectrogeno(
   });
 
   if (!res.ok) {
-    throw new Error(`Error creando grupo electrógeno (${res.status})`);
+    const message = await getErrorMessage(
+      res,
+      `Error creando grupo electrógeno (${res.status})`,
+    );
+    throw new Error(message);
   }
 
   return (await res.json()) as GrupoElectrogenoDTO;
@@ -80,7 +106,11 @@ export async function updateGrupoElectrogeno(
   });
 
   if (!res.ok) {
-    throw new Error(`Error editando grupo electrógeno (${res.status})`);
+    const message = await getErrorMessage(
+      res,
+      `Error editando grupo electrógeno (${res.status})`,
+    );
+    throw new Error(message);
   }
 
   return (await res.json()) as GrupoElectrogenoDTO;
@@ -96,6 +126,10 @@ export async function deleteGrupoElectrogeno(id: number): Promise<void> {
   });
 
   if (!res.ok) {
-    throw new Error(`Error eliminando grupo electrógeno (${res.status})`);
+    const message = await getErrorMessage(
+      res,
+      `Error eliminando grupo electrógeno (${res.status})`,
+    );
+    throw new Error(message);
   }
 }

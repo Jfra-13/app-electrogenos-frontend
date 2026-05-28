@@ -12,6 +12,7 @@ import {
 export default function InventoryManager() {
   const [rows, setRows] = useState<GrupoElectrogenoDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
@@ -29,8 +30,11 @@ export default function InventoryManager() {
     try {
       const data = await listGruposElectrogenos({ page: 0, size: 50 });
       setRows(data.content);
+      setError(null);
     } catch (e) {
+      const message = e instanceof Error ? e.message : "Error cargando datos";
       console.error(e);
+      setError(message);
       setRows([]);
     } finally {
       setLoading(false);
@@ -39,6 +43,14 @@ export default function InventoryManager() {
 
   useEffect(() => {
     refresh();
+  }, []);
+
+  useEffect(() => {
+    const handler = () => {
+      refresh();
+    };
+    window.addEventListener("stock-updated", handler);
+    return () => window.removeEventListener("stock-updated", handler);
   }, []);
 
   const openCreate = () => {
@@ -57,13 +69,17 @@ export default function InventoryManager() {
     try {
       await deleteGrupoElectrogeno(row.id);
       setRows((prev) => prev.filter((r) => r.id !== row.id));
+      setError(null);
     } catch (e) {
+      const message = e instanceof Error ? e.message : "Error eliminando";
       console.error(e);
+      setError(message);
     }
   };
 
   const handleSubmit = async (dto: GrupoElectrogenoCreateDTO) => {
     setSubmitting(true);
+    setError(null);
     try {
       if (dialogMode === "create") {
         const created = await createGrupoElectrogeno(dto);
@@ -75,8 +91,11 @@ export default function InventoryManager() {
       }
 
       setDialogOpen(false);
+      refresh();
     } catch (e) {
+      const message = e instanceof Error ? e.message : "Error guardando";
       console.error(e);
+      setError(message);
     } finally {
       setSubmitting(false);
     }
@@ -100,6 +119,12 @@ export default function InventoryManager() {
           Nuevo
         </button>
       </div>
+
+      {error && (
+        <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm border border-red-100">
+          {error}
+        </div>
+      )}
 
       {loading ? (
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-10 text-sm text-gray-500">

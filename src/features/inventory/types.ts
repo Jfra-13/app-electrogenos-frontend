@@ -12,6 +12,7 @@ export type GrupoElectrogenoDTO = {
   pMax: number;
   insonorizado?: boolean;
   capo?: boolean;
+  stock?: number;
   potenciaMedia?: number;
   precioVentaCalculado?: number;
   tipoGrupo?: "Fijo" | "Móvil";
@@ -29,6 +30,7 @@ export type GrupoElectrogenoCreateDTO = {
   pMax: number;
   insonorizado?: boolean;
   capo?: boolean;
+  stock?: number;
   cantidadRuedas?: number;
   materialEje?: MaterialEje;
   esMovil?: boolean;

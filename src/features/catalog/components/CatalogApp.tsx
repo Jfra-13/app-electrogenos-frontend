@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import ProductCard, { type ProductDTO } from "./ProductCard";
+import { getApiBaseUrl } from "../../../lib/api/baseUrl";
+import type { GrupoElectrogenoDTO } from "../../inventory/types";
 
 const ChevronDown = ({ size = 20 }: { size?: number }) => (
   <svg
@@ -24,7 +26,7 @@ const Dropdown = ({
   options,
   value,
   placeholder = "Seleccionar",
-  className = "min-h-[40px]",
+  className = "min-h-10",
   onChange,
 }: {
   options: string[];
@@ -113,71 +115,137 @@ const Dropdown = ({
 export default function CatalogApp() {
   const [products, setProducts] = useState<ProductDTO[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [combustible, setCombustible] = useState("Todos");
   const [orden, setOrden] = useState("Menor a Mayor");
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
 
-  useEffect(() => {
-    fetchProducts();
-  }, [combustible, orden, page]);
+  const PAGE_SIZE = 6;
+
+  const getJwtTokenFromCookie = () => {
+    const parts = document.cookie.split(";").map((c) => c.trim());
+    const tokenPart = parts.find((c) => c.startsWith("jwt_token="));
+    if (!tokenPart) return undefined;
+    const value = tokenPart.slice("jwt_token=".length);
+    return value || undefined;
+  };
+
+  const getAuthHeaders = (): HeadersInit => {
+    const token = getJwtTokenFromCookie();
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
+  const fetchByTipo = async (tipo: string, pageIndex: number, size: number) => {
+    const url = new URL(
+      "/api/v1/grupos-electrogenos/filtro/combustible",
+      getApiBaseUrl(),
+    );
+    url.searchParams.set("tipo", tipo);
+    url.searchParams.set("page", String(pageIndex));
+    url.searchParams.set("size", String(size));
+    const res = await fetch(url.toString(), {
+      headers: {
+        ...getAuthHeaders(),
+      },
+    });
+
+    if (!res.ok) {
+      throw new Error(`Error cargando catálogo (${res.status})`);
+    }
+
+    return (await res.json()) as {
+      content: GrupoElectrogenoDTO[];
+      totalPages?: number;
+    };
+  };
+
+  const mapToProduct = (grupo: GrupoElectrogenoDTO): ProductDTO => {
+    const combustibleLabel = grupo.tipoCombustible
+      .toLowerCase()
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+
+    return {
+      id: grupo.id,
+      modelo: grupo.codigo,
+      combustible: combustibleLabel,
+      potenciaContinua: `${grupo.pMin} kVA`,
+      potenciaEmergencia: `${grupo.pMax} kVA`,
+      precioVentaCalculado: Number(grupo.precioVentaCalculado || 0),
+    };
+  };
 
   const fetchProducts = async () => {
     setLoading(true);
+    setError(null);
     try {
-      // Llamada real al backend (Comentada para cuando levantes tu API):
-      // const url = `http://tu-api-url.com/api/v1/grupos-electrogenos/filtro/combustible?tipo=${combustible}&page=${page}&size=12`;
-      // const res = await fetch(url);
-      // const data = await res.json();
+      const tipoMap: Record<string, string> = {
+        Todos: "Todos",
+        Nafta: "NAFTA",
+        Gasoil: "GASOIL",
+        "Gas Natural": "GAS_NATURAL",
+      };
+      const tipoSeleccionado = tipoMap[combustible] || "NAFTA";
+      const tipos =
+        tipoSeleccionado === "Todos"
+          ? ["NAFTA", "GASOIL", "GAS_NATURAL"]
+          : [tipoSeleccionado];
+      const sizePerTipo =
+        tipos.length > 1
+          ? Math.max(1, Math.ceil(PAGE_SIZE / tipos.length))
+          : PAGE_SIZE;
 
-      // Datos Mockeados para visualizar el frontend mientras tanto:
-      await new Promise((resolve) => setTimeout(resolve, 1200)); // Simula latencia para ver los skeletons
+      const responses = await Promise.all(
+        tipos.map((tipo) => fetchByTipo(tipo, page, sizePerTipo)),
+      );
 
-      // Simulamos que "Todos" tiene 18 productos (3 páginas) y los filtros específicos 6 productos (1 página)
-      const totalItems = combustible === "Todos" ? 18 : 6;
-      const calculatedTotalPages = Math.ceil(totalItems / 6);
-      setTotalPages(calculatedTotalPages);
+      const merged = responses.flatMap((response) =>
+        response.content.map(mapToProduct),
+      );
 
-      // Calculamos cuántos ítems se deben renderizar en la página actual (máximo 6)
-      const currentItemsCount = Math.max(0, Math.min(6, totalItems - page * 6));
-
-      const mockData: ProductDTO[] = Array.from({
-        length: currentItemsCount,
-      }).map((_, i) => {
-        const globalIndex = page * 6 + i;
-        const tipoCombustible =
-          combustible === "Todos"
-            ? ["Nafta", "Gasoil", "Gas Natural"][globalIndex % 3]
-            : combustible;
-
-        return {
-          id: globalIndex,
-          modelo: `Generador ${tipoCombustible} Auto X-${Math.floor(Math.random() * 1000)}`,
-          combustible: tipoCombustible,
-          potenciaContinua: `${50 + globalIndex * 10} kVA`,
-          potenciaEmergencia: `${55 + globalIndex * 10} kVA`,
-          precioVentaCalculado: 2500000 + Math.floor(Math.random() * 1500000),
-        };
+      const sorted = [...merged].sort((a, b) => {
+        if (orden === "Menor a Mayor") {
+          return a.precioVentaCalculado - b.precioVentaCalculado;
+        }
+        if (orden === "Mayor a Menor") {
+          return b.precioVentaCalculado - a.precioVentaCalculado;
+        }
+        return 0;
       });
 
-      // Ordenamiento Dinámico
-      if (orden === "Menor a Mayor") {
-        mockData.sort(
-          (a, b) => a.precioVentaCalculado - b.precioVentaCalculado,
-        );
-      } else if (orden === "Mayor a Menor") {
-        mockData.sort(
-          (a, b) => b.precioVentaCalculado - a.precioVentaCalculado,
-        );
-      }
+      const limited = tipos.length > 1 ? sorted.slice(0, PAGE_SIZE) : sorted;
+      setProducts(limited);
 
-      setProducts(mockData);
-    } catch (error) {
-      console.error("Error al cargar productos:", error);
+      const calculatedTotalPages = Math.max(
+        1,
+        ...responses.map((response) => response.totalPages ?? 1),
+      );
+      setTotalPages(calculatedTotalPages);
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Error al cargar productos";
+      console.error("Error al cargar productos:", err);
+      setError(message);
+      setProducts([]);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchProducts();
+  }, [combustible, orden, page]);
+
+  useEffect(() => {
+    const handler = () => {
+      fetchProducts();
+    };
+    window.addEventListener("stock-updated", handler);
+    return () => window.removeEventListener("stock-updated", handler);
+  }, [combustible, orden, page]);
 
   const handleNextPage = () => setPage((p) => p + 1);
   const handlePrevPage = () => setPage((p) => Math.max(0, p - 1));
@@ -216,6 +284,12 @@ export default function CatalogApp() {
           />
         </div>
       </div>
+
+      {error && (
+        <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm mb-6 border border-red-100">
+          {error}
+        </div>
+      )}
 
       {/* Cuadrícula de Productos */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -133,3 +133,33 @@ export async function deleteGrupoElectrogeno(id: number): Promise<void> {
     throw new Error(message);
   }
 }
+
+export async function uploadGrupoElectrogenoImagen(
+  id: number,
+  file: File,
+): Promise<GrupoElectrogenoDTO> {
+  const url = new URL(
+    `/api/v1/grupos-electrogenos/${id}/imagen`,
+    getApiBaseUrl(),
+  );
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const res = await fetch(url.toString(), {
+    method: "POST",
+    headers: {
+      ...getAuthHeaders(),
+    },
+    body: formData,
+  });
+
+  if (!res.ok) {
+    const message = await getErrorMessage(
+      res,
+      `Error subiendo imagen (${res.status})`,
+    );
+    throw new Error(message);
+  }
+
+  return (await res.json()) as GrupoElectrogenoDTO;
+}

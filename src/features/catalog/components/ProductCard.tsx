@@ -7,15 +7,24 @@ export interface ProductDTO {
   potenciaContinua: string;
   potenciaEmergencia: string;
   precioVentaCalculado: number;
+  imageUrl?: string;
 }
 
 export default function ProductCard({ product }: { product: ProductDTO }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 transition-all hover:shadow-lg hover:-translate-y-1">
-      {/* Imagen Placeholder */}
-      <div className="h-40 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
-        <span className="text-gray-400 font-medium">Imagen del Equipo</span>
-      </div>
+      {product.imageUrl ? (
+        <img
+          src={product.imageUrl}
+          alt={product.modelo}
+          className="h-40 w-full rounded-lg mb-4 object-cover"
+          loading="lazy"
+        />
+      ) : (
+        <div className="h-40 bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
+          <span className="text-gray-400 font-medium">Imagen del Equipo</span>
+        </div>
+      )}
 
       <div className="mb-3">
         <span className="text-xs font-bold text-orange-600 bg-orange-100 px-3 py-1 rounded-full">

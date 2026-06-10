@@ -13,6 +13,7 @@ export type GrupoElectrogenoDTO = {
   insonorizado?: boolean;
   capo?: boolean;
   stock?: number;
+  imageUrl?: string;
   potenciaMedia?: number;
   precioVentaCalculado?: number;
   tipoGrupo?: "Fijo" | "Móvil";

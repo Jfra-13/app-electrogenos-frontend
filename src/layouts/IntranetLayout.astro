@@ -1,7 +1,7 @@
 ---
 import "../styles/global.css";
 import Sidebar from "../features/admin/components/Sidebar.astro";
-import UserDropdown from "../features/admin/components/UserDropdown";
+import { ViewTransitions } from "astro:transitions";
 
 interface Props {
   title: string;
@@ -15,6 +15,7 @@ const { title } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{title} - Intranet Electrogen</title>
+    <ViewTransitions />
     <style>
       .intranet-body {
         padding-left: var(--sidebar-width, 16rem);
@@ -30,11 +31,6 @@ const { title } = Astro.props;
   </head>
   <body class="intranet-body bg-gray-50 text-gray-900 antialiased">
     <Sidebar />
-    <header
-      class="h-20 bg-white border-b border-gray-200 flex items-center justify-end px-8 sticky top-0 z-10"
-    >
-      <UserDropdown client:load />
-    </header>
     <main class="p-8">
       <slot />
     </main>

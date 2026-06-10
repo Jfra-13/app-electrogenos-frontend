@@ -6,6 +6,7 @@ import {
   createGrupoElectrogeno,
   deleteGrupoElectrogeno,
   listGruposElectrogenos,
+  uploadGrupoElectrogenoImagen,
   updateGrupoElectrogeno,
 } from "../api/gruposElectrogenosApi";
 
@@ -77,17 +78,35 @@ export default function InventoryManager() {
     }
   };
 
-  const handleSubmit = async (dto: GrupoElectrogenoCreateDTO) => {
+  const handleSubmit = async (
+    dto: GrupoElectrogenoCreateDTO,
+    imageFile?: File | null,
+  ) => {
     setSubmitting(true);
     setError(null);
     try {
+      let targetId: number | null = null;
+
       if (dialogMode === "create") {
         const created = await createGrupoElectrogeno(dto);
         setRows((prev) => [created, ...prev]);
+        targetId = created.id;
       } else {
         if (!editing) return;
         const updated = await updateGrupoElectrogeno(editing.id, dto);
         setRows((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+        targetId = updated.id;
+      }
+
+      if (imageFile && targetId) {
+        try {
+          await uploadGrupoElectrogenoImagen(targetId, imageFile);
+        } catch (e) {
+          const message =
+            e instanceof Error ? e.message : "No se pudo subir la imagen";
+          console.error(e);
+          setError(message);
+        }
       }
 
       setDialogOpen(false);

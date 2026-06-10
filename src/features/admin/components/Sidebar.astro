@@ -1,5 +1,5 @@
 ---
-
+import UserDropdown from "./UserDropdown";
 ---
 
 <aside
@@ -126,41 +126,7 @@
   </nav>
 
   <div class="sidebar-footer">
-    <a id="sidebar-login" href="/login" class="sidebar-action">
-      <svg
-        class="h-4 w-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-        ></path>
-      </svg>
-      <span class="sidebar-label">Iniciar sesion</span>
-    </a>
-
-    <button id="sidebar-logout" type="button" class="sidebar-action">
-      <svg
-        class="h-4 w-4"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-        ></path>
-      </svg>
-      <span class="sidebar-label">Cerrar sesion</span>
-    </button>
+    <UserDropdown client:load />
   </div>
 </aside>
 
@@ -173,7 +139,7 @@
     width: 16rem;
     display: flex;
     flex-direction: column;
-    z-index: 20;
+    z-index: 60;
     transition: width 200ms ease;
   }
 
@@ -237,6 +203,13 @@
       color 150ms ease;
   }
 
+  .sidebar-link svg,
+  .sidebar-action svg {
+    flex-shrink: 0;
+    height: 1.25rem;
+    width: 1.25rem;
+  }
+
   .sidebar-link:hover,
   .sidebar-action:hover {
     background: #f3f4f6;
@@ -258,7 +231,21 @@
       transform 150ms ease;
   }
 
+  .user-dropdown-label {
+    white-space: nowrap;
+    transition:
+      opacity 150ms ease,
+      transform 150ms ease;
+  }
+
   .sidebar[data-collapsed="true"] .sidebar-label {
+    opacity: 0;
+    transform: translateX(-6px);
+    width: 0;
+    overflow: hidden;
+  }
+
+  .sidebar[data-collapsed="true"] .user-dropdown-label {
     opacity: 0;
     transform: translateX(-6px);
     width: 0;
@@ -271,13 +258,15 @@
     width: auto;
   }
 
+  .sidebar[data-collapsed="true"]:hover .user-dropdown-label {
+    opacity: 1;
+    transform: translateX(0);
+    width: auto;
+  }
+
   .sidebar[data-collapsed="true"] .sidebar-toggle,
   .sidebar[data-collapsed="true"]:hover .sidebar-toggle {
     margin-left: auto;
-  }
-
-  .sidebar-hidden {
-    display: none;
   }
 </style>
 
@@ -285,21 +274,6 @@
   document.addEventListener("DOMContentLoaded", () => {
     const sidebar = document.getElementById("sidebar");
     const toggle = document.getElementById("sidebar-toggle");
-    const loginButton = document.getElementById("sidebar-login");
-    const logoutButton = document.getElementById("sidebar-logout");
-
-    const hasToken = document.cookie
-      .split(";")
-      .map((c) => c.trim())
-      .some((c) => c.startsWith("jwt_token="));
-
-    if (loginButton && logoutButton) {
-      if (hasToken) {
-        loginButton.classList.add("sidebar-hidden");
-      } else {
-        logoutButton.classList.add("sidebar-hidden");
-      }
-    }
 
     const stored = localStorage.getItem("sidebar_collapsed");
     let collapsedState = stored ? stored === "true" : true;
@@ -320,14 +294,6 @@
       toggle.addEventListener("click", () => {
         collapsedState = !collapsedState;
         applyCollapsed();
-      });
-    }
-
-    if (logoutButton) {
-      logoutButton.addEventListener("click", () => {
-        document.cookie =
-          "jwt_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
-        window.location.href = "/login";
       });
     }
   });

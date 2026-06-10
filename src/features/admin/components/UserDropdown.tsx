@@ -33,7 +33,7 @@ export default function UserDropdown() {
         <div className="w-9 h-9 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
           AD
         </div>
-        <span className="font-medium text-gray-700 hidden sm:block">
+        <span className="user-dropdown-label font-medium text-gray-700 hidden sm:block">
           Administrador
         </span>
         <svg

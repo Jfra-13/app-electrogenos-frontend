@@ -52,6 +52,9 @@ export default function InventoryTable({
       <table className="w-full text-left">
         <thead className="bg-gray-50 border-b border-gray-100">
           <tr>
+            <th className="px-6 py-4 text-xs font-semibold tracking-wider uppercase text-gray-500 w-16">
+              Imagen
+            </th>
             <th className="px-6 py-4 text-xs font-semibold tracking-wider uppercase text-gray-500">
               Código
             </th>
@@ -70,6 +73,20 @@ export default function InventoryTable({
         <tbody className="divide-y divide-gray-100">
           {rows.map((row) => (
             <tr key={row.id} className="hover:bg-gray-50">
+              <td className="px-6 py-4">
+                {row.imageUrl ? (
+                  <img
+                    src={row.imageUrl}
+                    alt={row.codigo}
+                    className="h-10 w-10 rounded-md object-cover"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="h-10 w-10 rounded-md bg-gray-100 flex items-center justify-center text-[10px] text-gray-400">
+                    N/A
+                  </div>
+                )}
+              </td>
               <td className="px-6 py-4 text-sm font-semibold text-blue-950">
                 {row.codigo}
               </td>
@@ -115,7 +132,7 @@ export default function InventoryTable({
             <tr>
               <td
                 className="px-6 py-10 text-sm text-gray-500 text-center"
-                colSpan={4}
+                colSpan={5}
               >
                 No hay grupos electrógenos cargados.
               </td>

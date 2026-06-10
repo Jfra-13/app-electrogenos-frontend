@@ -6,6 +6,7 @@ import type {
   TipoArranque,
   TipoCombustible,
 } from "../types";
+import Dropdown from "../../../components/react/Dropdown";
 
 type FormState = {
   codigo: string;
@@ -21,6 +22,8 @@ type FormState = {
   cantidadRuedas: string;
   materialEje: MaterialEje | "";
 };
+
+const toNumber = (value: string) => Number(value.replace(",", ".").trim());
 
 function toFormState(grupo?: GrupoElectrogenoDTO): FormState {
   return {
@@ -46,17 +49,17 @@ function toCreateDTO(state: FormState): GrupoElectrogenoCreateDTO {
   const cantidadRuedas = state.esMovil
     ? state.cantidadRuedas.trim() === ""
       ? undefined
-      : Number(state.cantidadRuedas)
+      : toNumber(state.cantidadRuedas)
     : undefined;
-  const stock = state.stock.trim() === "" ? undefined : Number(state.stock);
+  const stock = state.stock.trim() === "" ? undefined : toNumber(state.stock);
 
   return {
     codigo: state.codigo.trim(),
-    vidaUtil: Number(state.vidaUtil),
+    vidaUtil: toNumber(state.vidaUtil),
     tipoCombustible: state.tipoCombustible,
     tipoArranque: state.tipoArranque,
-    pMin: Number(state.pMin),
-    pMax: Number(state.pMax),
+    pMin: toNumber(state.pMin),
+    pMax: toNumber(state.pMax),
     insonorizado: state.insonorizado,
     capo: state.capo,
     stock,
@@ -78,7 +81,7 @@ export default function GrupoFormDialog({
   mode: "create" | "edit";
   initialValue?: GrupoElectrogenoDTO;
   onClose: () => void;
-  onSubmit: (dto: GrupoElectrogenoCreateDTO) => void;
+  onSubmit: (dto: GrupoElectrogenoCreateDTO, imageFile?: File | null) => void;
   submitting?: boolean;
 }) {
   const title =
@@ -87,10 +90,12 @@ export default function GrupoFormDialog({
   const [state, setState] = useState<FormState>(() =>
     toFormState(initialValue),
   );
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   useEffect(() => {
     if (!open) return;
     setState(toFormState(initialValue));
+    setImageFile(null);
   }, [open, initialValue]);
 
   const canSubmit = useMemo(() => {
@@ -99,19 +104,19 @@ export default function GrupoFormDialog({
     if (!state.pMin.trim()) return false;
     if (!state.pMax.trim()) return false;
     if (!state.stock.trim()) return false;
-    const vidaUtil = Number(state.vidaUtil);
+    const vidaUtil = toNumber(state.vidaUtil);
     if (!Number.isFinite(vidaUtil) || vidaUtil <= 0) return false;
-    const pMin = Number(state.pMin);
-    const pMax = Number(state.pMax);
+    const pMin = toNumber(state.pMin);
+    const pMax = toNumber(state.pMax);
     if (!Number.isFinite(pMin) || pMin < 0) return false;
     if (!Number.isFinite(pMax) || pMax <= 0) return false;
     if (pMax < pMin) return false;
-    const stock = Number(state.stock);
+    const stock = toNumber(state.stock);
     if (!Number.isFinite(stock) || stock < 0) return false;
     if (state.esMovil) {
       if (!state.cantidadRuedas.trim()) return false;
       if (!state.materialEje) return false;
-      const n = Number(state.cantidadRuedas);
+      const n = toNumber(state.cantidadRuedas);
       if (!Number.isFinite(n) || n <= 0) return false;
     }
     return true;
@@ -134,7 +139,7 @@ export default function GrupoFormDialog({
           role="dialog"
           aria-modal="true"
           aria-label={title}
-          className="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-gray-100"
+          className="w-full max-w-xl bg-white rounded-2xl shadow-xl border border-gray-100 max-h-[85vh] flex flex-col"
         >
           <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
             <h2 className="text-lg font-bold text-blue-950">{title}</h2>
@@ -164,11 +169,11 @@ export default function GrupoFormDialog({
           </div>
 
           <form
-            className="px-6 py-6 space-y-5"
+            className="px-4 sm:px-6 py-6 space-y-5 overflow-y-auto flex-1"
             onSubmit={(e) => {
               e.preventDefault();
               if (!canSubmit || submitting) return;
-              onSubmit(toCreateDTO(state));
+              onSubmit(toCreateDTO(state), imageFile);
             }}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -224,39 +229,41 @@ export default function GrupoFormDialog({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Tipo de combustible
                 </label>
-                <select
+                <Dropdown
+                  options={[
+                    { label: "NAFTA", value: "NAFTA" },
+                    { label: "GAS_NATURAL", value: "GAS_NATURAL" },
+                    { label: "GASOIL", value: "GASOIL" },
+                  ]}
                   value={state.tipoCombustible}
-                  onChange={(e) =>
+                  className="min-h-10 w-full"
+                  onChange={(val) =>
                     setState((s) => ({
                       ...s,
-                      tipoCombustible: e.target.value as TipoCombustible,
+                      tipoCombustible: val as TipoCombustible,
                     }))
                   }
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                >
-                  <option value="NAFTA">NAFTA</option>
-                  <option value="GAS_NATURAL">GAS_NATURAL</option>
-                  <option value="GASOIL">GASOIL</option>
-                </select>
+                />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Tipo de arranque
                 </label>
-                <select
+                <Dropdown
+                  options={[
+                    { label: "AUTOMATICO", value: "AUTOMATICO" },
+                    { label: "MANUAL", value: "MANUAL" },
+                  ]}
                   value={state.tipoArranque}
-                  onChange={(e) =>
+                  className="min-h-10 w-full"
+                  onChange={(val) =>
                     setState((s) => ({
                       ...s,
-                      tipoArranque: e.target.value as TipoArranque,
+                      tipoArranque: val as TipoArranque,
                     }))
                   }
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                >
-                  <option value="AUTOMATICO">AUTOMATICO</option>
-                  <option value="MANUAL">MANUAL</option>
-                </select>
+                />
               </div>
             </div>
 
@@ -380,23 +387,41 @@ export default function GrupoFormDialog({
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Material del eje
                   </label>
-                  <select
+                  <Dropdown
+                    options={[
+                      { label: "Seleccionar", value: "" },
+                      { label: "ACERO", value: "ACERO" },
+                      { label: "ALEACION", value: "ALEACION" },
+                    ]}
                     value={state.materialEje}
-                    onChange={(e) =>
+                    className="min-h-10 w-full"
+                    onChange={(val) =>
                       setState((s) => ({
                         ...s,
-                        materialEje: e.target.value as MaterialEje,
+                        materialEje: val as MaterialEje,
                       }))
                     }
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-                  >
-                    <option value="">Seleccionar</option>
-                    <option value="ACERO">ACERO</option>
-                    <option value="ALEACION">ALEACION</option>
-                  </select>
+                  />
                 </div>
               </div>
             )}
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Imagen (opcional)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) =>
+                  setImageFile(e.target.files ? e.target.files[0] : null)
+                }
+                className="w-full rounded-lg border border-gray-300 px-4 py-2.5 text-sm text-gray-700 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+              />
+              <p className="text-xs text-gray-500 mt-2">
+                Puedes cargar la imagen ahora o agregarla mas adelante.
+              </p>
+            </div>
 
             <div className="pt-2 flex items-center justify-end gap-3">
               <button

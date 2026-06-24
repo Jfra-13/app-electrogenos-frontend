@@ -5,37 +5,7 @@ import type {
   PaginatedResponseDTO,
 } from "../types";
 import { getApiBaseUrl } from "../../../lib/api/baseUrl";
-
-function getJwtTokenFromCookie(): string | undefined {
-  const parts = document.cookie.split(";").map((c) => c.trim());
-  const tokenPart = parts.find((c) => c.startsWith("jwt_token="));
-  if (!tokenPart) return undefined;
-  const value = tokenPart.slice("jwt_token=".length);
-  return value || undefined;
-}
-
-function getAuthHeaders(): HeadersInit {
-  const token = getJwtTokenFromCookie();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-async function getErrorMessage(res: Response, fallback: string) {
-  try {
-    const data = (await res.json()) as { message?: string } | undefined;
-    if (data?.message) return data.message;
-  } catch (e) {
-    // Ignore JSON parse errors and fall back to text.
-  }
-
-  try {
-    const text = await res.text();
-    if (text) return text;
-  } catch (e) {
-    // Ignore read errors.
-  }
-
-  return fallback;
-}
+import { getAuthHeaders, getErrorMessage } from "../../../lib/api/http";
 
 export async function listGruposElectrogenos(options?: {
   page?: number;
@@ -132,6 +102,34 @@ export async function deleteGrupoElectrogeno(id: number): Promise<void> {
     );
     throw new Error(message);
   }
+}
+
+export async function patchStockGrupoElectrogeno(
+  id: number,
+  nuevoStock: number,
+): Promise<GrupoElectrogenoDTO> {
+  const url = new URL(
+    `/api/v1/grupos-electrogenos/${id}/stock`,
+    getApiBaseUrl(),
+  );
+  url.searchParams.set("nuevoStock", String(nuevoStock));
+
+  const res = await fetch(url.toString(), {
+    method: "PATCH",
+    headers: {
+      ...getAuthHeaders(),
+    },
+  });
+
+  if (!res.ok) {
+    const message = await getErrorMessage(
+      res,
+      `Error actualizando stock (${res.status})`,
+    );
+    throw new Error(message);
+  }
+
+  return (await res.json()) as GrupoElectrogenoDTO;
 }
 
 export async function uploadGrupoElectrogenoImagen(

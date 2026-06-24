@@ -1,17 +1,9 @@
 ---
 export const prerender = false;
 import IntranetLayout from "../../layouts/IntranetLayout.astro";
-import InventoryManager from "../../features/inventory/components/InventoryManager";
+import Dashboard from "../../features/dashboard/components/Dashboard";
 ---
 
 <IntranetLayout title="Panel de Control">
-  <div class="max-w-5xl mx-auto">
-    <h1 class="text-3xl font-bold text-blue-950 mb-2">Panel de Control</h1>
-    <p class="text-gray-600 mb-8">
-      Bienvenido a la intranet. Has superado el muro de seguridad
-      satisfactoriamente.
-    </p>
-
-    <InventoryManager client:visible />
-  </div>
+  <Dashboard client:load />
 </IntranetLayout>

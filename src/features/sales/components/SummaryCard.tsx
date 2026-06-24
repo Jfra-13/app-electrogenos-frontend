@@ -1,5 +1,12 @@
 import React from "react";
 import type { SolicitudCompraResponseDTO } from "../types";
+import { Badge } from "../../../components/react/ui/Badge";
+import {
+  TIPO_COMBUSTIBLE_LABELS,
+  TIPO_PAGO_LABELS,
+  labelOf,
+} from "../../../lib/enums";
+import { formatPEN } from "../../../lib/format";
 
 export default function SummaryCard({
   data,
@@ -36,7 +43,9 @@ export default function SummaryCard({
         </div>
         <div className="flex justify-between gap-4">
           <span className="text-gray-500">Tipo de pago</span>
-          <span className="font-semibold text-gray-900">{data.tipoPago}</span>
+          <Badge tone={data.tipoPago === "EFECTIVO" ? "success" : "info"}>
+            {labelOf(TIPO_PAGO_LABELS, data.tipoPago)}
+          </Badge>
         </div>
         <div className="flex justify-between gap-4">
           <span className="text-gray-500">Cantidad</span>
@@ -51,7 +60,7 @@ export default function SummaryCard({
         <div className="flex justify-between gap-4">
           <span className="text-gray-500">Combustible</span>
           <span className="font-semibold text-gray-900">
-            {data.tipoCombustible}
+            {labelOf(TIPO_COMBUSTIBLE_LABELS, data.tipoCombustible)}
           </span>
         </div>
         <div className="flex justify-between gap-4">
@@ -75,7 +84,7 @@ export default function SummaryCard({
         <div className="flex justify-between gap-4">
           <span className="text-gray-500">Precio unitario</span>
           <span className="font-semibold text-gray-900">
-            ${data.precioVentaUnitario.toLocaleString("es-AR")}
+            {formatPEN(data.precioVentaUnitario)}
           </span>
         </div>
       </div>

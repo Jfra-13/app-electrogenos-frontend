@@ -1,0 +1,9 @@
+---
+export const prerender = false;
+import IntranetLayout from "../../../layouts/IntranetLayout.astro";
+import PagosReport from "../../../features/reportes/components/PagosReport";
+---
+
+<IntranetLayout title="Reporte por Pago">
+  <PagosReport client:load />
+</IntranetLayout>

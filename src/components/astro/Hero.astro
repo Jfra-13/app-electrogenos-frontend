@@ -1,5 +1,5 @@
 <section
-  class="relative w-full h-screen flex items-center overflow-hidden bg-gray-900"
+  class="relative w-full min-h-screen flex items-center overflow-hidden bg-gray-900"
 >
   <div id="hero-carousel" class="absolute inset-0 w-full h-full">
     <img
@@ -19,49 +19,129 @@
     />
   </div>
 
-  <div class="relative z-10 w-full px-6 md:px-16 lg:px-24">
+  <div class="relative z-10 w-full px-6 md:px-16 lg:px-24 pt-24 pb-40">
     <div
       class="bg-white/60 backdrop-blur-md p-8 md:p-12 rounded-2xl shadow-2xl max-w-lg md:max-w-2xl border border-white/40 text-left"
     >
+      <p
+        class="text-xs font-semibold uppercase tracking-[0.16em] text-orange-500 mb-4"
+      >
+        · Energía industrial · desde 2010 ·
+      </p>
+
       <h1
         class="text-5xl md:text-7xl font-bold text-blue-950 mb-6 leading-tight"
       >
         El Futuro de la <br class="hidden md:block" />Energía
       </h1>
 
-      <p class="text-xl md:text-2xl text-blue-900 font-medium">
-        Soluciones innovadoras para impulsar tu empresa al siguiente nivel.
+      <p class="text-xl md:text-2xl text-blue-900 font-medium mb-8">
+        Grupos electrógenos de potencia real, cuando los necesitas. Equipos
+        industriales certificados para operaciones críticas.
       </p>
+
+      <div class="flex flex-col sm:flex-row gap-4">
+        <a
+          href="#productos"
+          class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-white bg-orange-500 shadow-sm transition-all duration-300 hover:bg-orange-400 hover:shadow-lg"
+        >
+          Ver catálogo
+        </a>
+        <a
+          href="#contacto"
+          class="inline-flex items-center justify-center px-6 py-3 rounded-lg font-semibold text-orange-500 border border-orange-500 transition-colors duration-300 hover:bg-orange-500 hover:text-white"
+        >
+          Solicitar asesoría
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Signature element: pulse line + stats -->
+  <div
+    class="absolute bottom-0 left-0 w-full z-10 bg-white/70 backdrop-blur-md border-t border-white/40"
+  >
+    <svg
+      class="block w-full h-6 text-orange-500"
+      viewBox="0 0 1200 40"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <line x1="0" y1="20" x2="1200" y2="20" stroke="currentColor" stroke-width="1" opacity="0.3" />
+      <polyline
+        class="hero-pulse"
+        points="0,20 60,20 90,6 120,34 150,20 1200,20"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      />
+    </svg>
+
+    <div
+      class="max-w-7xl mx-auto px-6 md:px-16 lg:px-24 py-6 grid grid-cols-2 md:grid-cols-4 gap-6 divide-x divide-gray-200"
+    >
+      <div class="text-center px-2">
+        <p class="text-3xl font-bold text-blue-950">120+</p>
+        <p class="text-xs uppercase tracking-wider text-gray-500 mt-1">Equipos</p>
+      </div>
+      <div class="text-center px-2">
+        <p class="text-3xl font-bold text-blue-950">15 años</p>
+        <p class="text-xs uppercase tracking-wider text-gray-500 mt-1">Experiencia</p>
+      </div>
+      <div class="text-center px-2">
+        <p class="text-3xl font-bold text-blue-950">3 tipos</p>
+        <p class="text-xs uppercase tracking-wider text-gray-500 mt-1">Combustible</p>
+      </div>
+      <div class="text-center px-2">
+        <p class="text-3xl font-bold text-blue-950">98%</p>
+        <p class="text-xs uppercase tracking-wider text-gray-500 mt-1">Disponibilidad</p>
+      </div>
     </div>
   </div>
 </section>
 
+<style>
+  .hero-pulse {
+    stroke-dasharray: 120 1200;
+    animation: hero-pulse-move 8s ease-in-out infinite;
+  }
+
+  @keyframes hero-pulse-move {
+    from {
+      stroke-dashoffset: 1320;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-pulse {
+      animation: none;
+    }
+  }
+</style>
+
 <script>
   function initHeroCarousel() {
-    // Seleccionamos todas las imágenes del carrusel
     const images = document.querySelectorAll(".carousel-image");
     if (images.length === 0) return;
 
     let currentIndex = 0;
 
-    // Cambiar de imagen cada 5 segundos (5000 milisegundos)
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
     setInterval(() => {
-      // Ocultar imagen actual
       images[currentIndex].classList.remove("opacity-100");
       images[currentIndex].classList.add("opacity-0");
 
-      // Calcular el índice de la siguiente imagen
       currentIndex = (currentIndex + 1) % images.length;
 
-      // Mostrar la nueva imagen
       images[currentIndex].classList.remove("opacity-0");
       images[currentIndex].classList.add("opacity-100");
     }, 5000);
   }
 
-  // Ejecutar cuando el DOM esté listo
   document.addEventListener("DOMContentLoaded", initHeroCarousel);
-
-  // (Opcional) Si usas ViewTransitions de Astro, esto asegura que el carrusel vuelva a funcionar al cambiar de página
   document.addEventListener("astro:page-load", initHeroCarousel);
 </script>

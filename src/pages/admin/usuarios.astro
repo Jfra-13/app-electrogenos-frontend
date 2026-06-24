@@ -1,0 +1,9 @@
+---
+export const prerender = false;
+import IntranetLayout from "../../layouts/IntranetLayout.astro";
+import UsuariosManager from "../../features/usuarios/components/UsuariosManager";
+---
+
+<IntranetLayout title="Empleados">
+  <UsuariosManager client:visible />
+</IntranetLayout>

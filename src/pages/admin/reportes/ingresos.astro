@@ -1,0 +1,9 @@
+---
+export const prerender = false;
+import IntranetLayout from "../../../layouts/IntranetLayout.astro";
+import IngresosReport from "../../../features/reportes/components/IngresosReport";
+---
+
+<IntranetLayout title="Ingresos Totales">
+  <IngresosReport client:load />
+</IntranetLayout>

@@ -4,6 +4,11 @@ import type {
   TipoCombustible,
   TipoPago,
 } from "../types";
+import {
+  TIPO_COMBUSTIBLE_LABELS,
+  TIPO_PAGO_LABELS,
+  optionsOf,
+} from "../../../lib/enums";
 
 type FormState = {
   nombreSolicitante: string;
@@ -73,10 +78,11 @@ export default function SalesForm({
       className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4"
     >
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label htmlFor="venta-nombre-solicitante" className="block text-sm font-medium text-gray-700 mb-2">
           Nombre del solicitante
         </label>
         <input
+          id="venta-nombre-solicitante"
           value={state.nombreSolicitante}
           onChange={(e) =>
             setState((s) => ({ ...s, nombreSolicitante: e.target.value }))
@@ -88,10 +94,11 @@ export default function SalesForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="venta-tipo-pago" className="block text-sm font-medium text-gray-700 mb-2">
             Tipo de pago
           </label>
           <select
+            id="venta-tipo-pago"
             value={state.tipoPago}
             onChange={(e) =>
               setState((s) => ({
@@ -101,16 +108,20 @@ export default function SalesForm({
             }
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
           >
-            <option value="CHEQUE">CHEQUE</option>
-            <option value="EFECTIVO">EFECTIVO</option>
+            {optionsOf(TIPO_PAGO_LABELS).map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="venta-cantidad" className="block text-sm font-medium text-gray-700 mb-2">
             Cantidad
           </label>
           <input
+            id="venta-cantidad"
             value={state.cantidad}
             onChange={(e) =>
               setState((s) => ({ ...s, cantidad: e.target.value }))
@@ -124,10 +135,11 @@ export default function SalesForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="venta-potencia-requerida" className="block text-sm font-medium text-gray-700 mb-2">
             Potencia requerida (kVA)
           </label>
           <input
+            id="venta-potencia-requerida"
             value={state.potenciaRequerida}
             onChange={(e) =>
               setState((s) => ({ ...s, potenciaRequerida: e.target.value }))
@@ -139,10 +151,11 @@ export default function SalesForm({
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="venta-vida-util" className="block text-sm font-medium text-gray-700 mb-2">
             Vida util (anos)
           </label>
           <input
+            id="venta-vida-util"
             value={state.vidaUtilSolicitada}
             onChange={(e) =>
               setState((s) => ({ ...s, vidaUtilSolicitada: e.target.value }))
@@ -156,10 +169,11 @@ export default function SalesForm({
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="venta-tipo-combustible" className="block text-sm font-medium text-gray-700 mb-2">
             Combustible
           </label>
           <select
+            id="venta-tipo-combustible"
             value={state.tipoCombustible}
             onChange={(e) =>
               setState((s) => ({
@@ -169,17 +183,20 @@ export default function SalesForm({
             }
             className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
           >
-            <option value="NAFTA">NAFTA</option>
-            <option value="GAS_NATURAL">GAS_NATURAL</option>
-            <option value="GASOIL">GASOIL</option>
+            {optionsOf(TIPO_COMBUSTIBLE_LABELS).map((o) => (
+              <option key={o.value} value={o.value}>
+                {o.label}
+              </option>
+            ))}
           </select>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="venta-entidad-id" className="block text-sm font-medium text-gray-700 mb-2">
             Entidad ID
           </label>
           <input
+            id="venta-entidad-id"
             value={state.entidadId}
             onChange={(e) =>
               setState((s) => ({ ...s, entidadId: e.target.value }))

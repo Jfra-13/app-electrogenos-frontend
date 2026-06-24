@@ -1,4 +1,5 @@
 import React from "react";
+import { formatPEN } from "../../../lib/format";
 
 export interface ProductDTO {
   id: number;
@@ -46,6 +47,7 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -67,6 +69,7 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
+            aria-hidden="true"
           >
             <path
               strokeLinecap="round"
@@ -89,7 +92,7 @@ export default function ProductCard({ product }: { product: ProductDTO }) {
           Precio estimado
         </span>
         <span className="text-2xl font-black text-blue-950">
-          ${product.precioVentaCalculado.toLocaleString("es-AR")}
+          {formatPEN(product.precioVentaCalculado)}
         </span>
       </div>
     </div>

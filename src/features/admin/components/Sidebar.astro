@@ -1,5 +1,118 @@
 ---
-import UserDropdown from "./UserDropdown";
+import UserBlock from "./UserBlock.astro";
+import { getRoleFromToken } from "../../../lib/api/jwt";
+
+const pathname = Astro.url.pathname;
+const isActive = (href: string) => pathname === href;
+
+// Role gating runs SSR (reads the JWT cookie here) so the nav renders already
+// filtered — no client-side flash of links the user can't use. The API still
+// enforces roles; this is UX only.
+const userRoles = getRoleFromToken(Astro.cookies.get("jwt_token")?.value);
+type Role = "ADMIN" | "EMPLEADO";
+const canSee = (roles?: Role[]) =>
+  !roles ||
+  roles.some((role) =>
+    userRoles.some((r) => r.toUpperCase().includes(role)),
+  );
+
+// `roles` omitted = visible to any authenticated user. Listed = restricted.
+type NavItem = { href: string; label: string; paths: string[]; roles?: Role[] };
+type NavSection = { label?: string; items: NavItem[] };
+
+const allSections: NavSection[] = [
+  {
+    items: [
+      {
+        href: "/admin",
+        label: "Dashboard",
+        roles: ["ADMIN"],
+        paths: [
+          "M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6",
+        ],
+      },
+    ],
+  },
+  {
+    label: "Catálogo",
+    items: [
+      { href: "/admin/catalogo", label: "Catálogo", paths: ["M4 7h16M4 12h16M4 17h16"] },
+      {
+        href: "/admin/grupos",
+        label: "Grupos Electrógenos",
+        roles: ["ADMIN"],
+        paths: ["M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"],
+      },
+    ],
+  },
+  {
+    label: "Operaciones",
+    items: [
+      {
+        href: "/admin/ventas",
+        label: "Ventas",
+        paths: [
+          "M12 8c-3.314 0-6 2.239-6 5s2.686 5 6 5 6-2.239 6-5-2.686-5-6-5z",
+          "M12 6V4m0 16v-2",
+        ],
+      },
+      {
+        href: "/admin/ventas/historial",
+        label: "Historial",
+        paths: ["M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"],
+      },
+    ],
+  },
+  {
+    label: "Administración",
+    items: [
+      {
+        href: "/admin/usuarios",
+        label: "Empleados",
+        roles: ["ADMIN"],
+        paths: [
+          "M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1a4 4 0 100-8 4 4 0 000 8zm6-9a3 3 0 11-6 0 3 3 0 016 0z",
+        ],
+      },
+    ],
+  },
+  {
+    label: "Reportes",
+    items: [
+      {
+        href: "/admin/reportes/ranking",
+        label: "Ranking Clientes",
+        roles: ["ADMIN"],
+        paths: ["M3 3v18h18M9 17V9m4 8V5m4 12v-6"],
+      },
+      {
+        href: "/admin/reportes/empleados",
+        label: "Ranking Empleados",
+        roles: ["ADMIN"],
+        paths: [
+          "M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1a4 4 0 100-8 4 4 0 000 8zm6-9a3 3 0 11-6 0 3 3 0 016 0z",
+        ],
+      },
+      {
+        href: "/admin/reportes/pagos",
+        label: "Reporte por Pago",
+        roles: ["ADMIN"],
+        paths: ["M3 10h18M5 6h14a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2z"],
+      },
+      {
+        href: "/admin/reportes/ingresos",
+        label: "Ingresos Totales",
+        roles: ["ADMIN"],
+        paths: ["M3 17l6-6 4 4 8-8M21 7h-4M21 7v4"],
+      },
+    ],
+  },
+];
+
+// Drop items the role can't see, then drop sections left empty.
+const sections: NavSection[] = allSections
+  .map((section) => ({ ...section, items: section.items.filter((i) => canSee(i.roles)) }))
+  .filter((section) => section.items.length > 0);
 ---
 
 <aside
@@ -8,19 +121,15 @@ import UserDropdown from "./UserDropdown";
   data-collapsed="true"
 >
   <div class="sidebar-header">
-    <div class="flex items-center gap-3">
-      <div
-        class="h-10 w-10 rounded-xl bg-orange-500 text-white flex items-center justify-center font-bold"
-      >
-        E
-      </div>
+    <div class="sidebar-brand flex items-center gap-3">
+      <img
+        src="/assets/icons/logo.svg"
+        alt="Electrogen"
+        class="h-10 w-auto flex-shrink-0"
+      />
       <div class="sidebar-label">
-        <span class="text-orange-500 font-bold text-lg tracking-wider"
-          >ELECTROGEN</span
-        >
-        <p
-          class="text-xs text-gray-400 mt-1 uppercase tracking-widest font-semibold"
-        >
+        <span class="text-orange-500 font-bold text-lg tracking-wider">ELECTROGEN</span>
+        <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest font-semibold">
           Intranet / Admin
         </p>
       </div>
@@ -49,86 +158,49 @@ import UserDropdown from "./UserDropdown";
   </div>
 
   <nav class="sidebar-nav">
-    <a href="/admin" class="sidebar-link">
-      <svg
-        class="h-5 w-5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-        ></path>
-      </svg>
-      <span class="sidebar-label">Dashboard</span>
-    </a>
-
-    <a href="/admin/catalogo" class="sidebar-link">
-      <svg
-        class="h-5 w-5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M4 7h16M4 12h16M4 17h16"></path>
-      </svg>
-      <span class="sidebar-label">Catalogo</span>
-    </a>
-
-    <a href="/admin/ventas" class="sidebar-link">
-      <svg
-        class="h-5 w-5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M12 8c-3.314 0-6 2.239-6 5s2.686 5 6 5 6-2.239 6-5-2.686-5-6-5z"
-        ></path>
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M12 6V4m0 16v-2"></path>
-      </svg>
-      <span class="sidebar-label">Ventas</span>
-    </a>
-
-    <a href="/admin/ventas/historial" class="sidebar-link">
-      <svg
-        class="h-5 w-5"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-        aria-hidden="true"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-      </svg>
-      <span class="sidebar-label">Historial</span>
-    </a>
+    {
+      sections.map((section) => (
+        <div class="sidebar-section">
+          {section.label && (
+            <p class="sidebar-section-label sidebar-label">{section.label}</p>
+          )}
+          {section.items.map((item) => (
+            <a
+              href={item.href}
+              title={item.label}
+              aria-current={isActive(item.href) ? "page" : undefined}
+              class:list={["sidebar-link", { active: isActive(item.href) }]}
+            >
+              <svg
+                class="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                {item.paths.map((d) => (
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d={d}
+                  />
+                ))}
+              </svg>
+              <span class="sidebar-label">{item.label}</span>
+            </a>
+          ))}
+        </div>
+      ))
+    }
   </nav>
 
   <div class="sidebar-footer">
-    <UserDropdown client:load />
+    <UserBlock />
   </div>
 </aside>
+
+<div id="sidebar-overlay" class="sidebar-overlay" role="presentation"></div>
 
 <style>
   .sidebar {
@@ -179,18 +251,56 @@ import UserDropdown from "./UserDropdown";
 
   .sidebar[data-collapsed="true"] .sidebar-toggle {
     transform: rotate(180deg);
+    display: none;
+  }
+
+  .sidebar[data-collapsed="true"]:hover .sidebar-toggle {
+    display: inline-flex;
+  }
+
+  .sidebar[data-collapsed="true"] .sidebar-header {
+    justify-content: center;
+  }
+
+  .sidebar[data-collapsed="true"]:hover .sidebar-header {
+    justify-content: space-between;
+  }
+
+  /* Collapsed: kill the gap so the lone logo centers (the hidden label child
+     still reserves the flex gap otherwise). */
+  .sidebar[data-collapsed="true"] .sidebar-brand {
+    gap: 0;
+  }
+
+  .sidebar[data-collapsed="true"]:hover .sidebar-brand {
+    gap: 0.75rem;
   }
 
   .sidebar-nav {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: 0.75rem;
     padding: 1rem 0.75rem;
     flex: 1;
+    overflow-y: auto;
   }
 
-  .sidebar-link,
-  .sidebar-action {
+  .sidebar-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .sidebar-section-label {
+    padding: 0.25rem 0.9rem;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #9ca3af;
+  }
+
+  .sidebar-link {
     display: inline-flex;
     align-items: center;
     gap: 0.75rem;
@@ -203,35 +313,30 @@ import UserDropdown from "./UserDropdown";
       color 150ms ease;
   }
 
-  .sidebar-link svg,
-  .sidebar-action svg {
+  .sidebar-link svg {
     flex-shrink: 0;
     height: 1.25rem;
     width: 1.25rem;
   }
 
-  .sidebar-link:hover,
-  .sidebar-action:hover {
+  .sidebar-link:hover {
     background: #f3f4f6;
     color: #111827;
+  }
+
+  .sidebar-link.active {
+    background: #fff7ed;
+    color: #ea580c;
+    font-weight: 600;
+    box-shadow: inset 3px 0 0 #f97316;
   }
 
   .sidebar-footer {
     padding: 1rem 0.75rem 1.5rem;
     border-top: 1px solid #e5e7eb;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
   }
 
   .sidebar-label {
-    white-space: nowrap;
-    transition:
-      opacity 150ms ease,
-      transform 150ms ease;
-  }
-
-  .user-dropdown-label {
     white-space: nowrap;
     transition:
       opacity 150ms ease,
@@ -242,44 +347,93 @@ import UserDropdown from "./UserDropdown";
     opacity: 0;
     transform: translateX(-6px);
     width: 0;
+    height: 0;
     overflow: hidden;
-  }
-
-  .sidebar[data-collapsed="true"] .user-dropdown-label {
-    opacity: 0;
-    transform: translateX(-6px);
-    width: 0;
-    overflow: hidden;
+    padding: 0;
   }
 
   .sidebar[data-collapsed="true"]:hover .sidebar-label {
     opacity: 1;
     transform: translateX(0);
     width: auto;
-  }
-
-  .sidebar[data-collapsed="true"]:hover .user-dropdown-label {
-    opacity: 1;
-    transform: translateX(0);
-    width: auto;
+    height: auto;
   }
 
   .sidebar[data-collapsed="true"] .sidebar-toggle,
   .sidebar[data-collapsed="true"]:hover .sidebar-toggle {
     margin-left: auto;
   }
+
+  /* Mobile: sidebar becomes an off-canvas drawer with a backdrop. */
+  .sidebar-overlay {
+    display: none;
+  }
+
+  @media (max-width: 1024px) {
+    .sidebar {
+      width: 16rem;
+      transform: translateX(-100%);
+      transition: transform 200ms ease;
+    }
+
+    /* On mobile the collapse rail is irrelevant — always full width. */
+    .sidebar[data-collapsed="true"],
+    .sidebar[data-collapsed="true"]:hover {
+      width: 16rem;
+    }
+
+    .sidebar[data-collapsed="true"] .sidebar-label,
+    .sidebar[data-collapsed="true"] .sidebar-toggle {
+      opacity: 1;
+      transform: none;
+      width: auto;
+      height: auto;
+      padding: revert;
+      overflow: visible;
+    }
+
+    .sidebar[data-collapsed="true"] .sidebar-header {
+      justify-content: space-between;
+    }
+
+    .sidebar[data-mobile-open="true"] {
+      transform: translateX(0);
+    }
+
+    .sidebar-toggle {
+      display: none;
+    }
+
+    .sidebar-overlay.open {
+      display: block;
+      position: fixed;
+      inset: 0;
+      z-index: 55;
+      background: rgba(17, 24, 39, 0.45);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sidebar {
+      transition: none;
+    }
+  }
 </style>
 
 <script>
-  document.addEventListener("DOMContentLoaded", () => {
+  // astro:page-load fires on first load AND after every view-transition nav,
+  // so the listeners survive client-side navigation (DOMContentLoaded would not).
+  function initSidebar() {
     const sidebar = document.getElementById("sidebar");
+    if (!sidebar) return;
     const toggle = document.getElementById("sidebar-toggle");
+    const overlay = document.getElementById("sidebar-overlay");
+    const menuBtn = document.getElementById("mobile-menu-btn");
 
     const stored = localStorage.getItem("sidebar_collapsed");
     let collapsedState = stored ? stored === "true" : true;
 
     const applyCollapsed = () => {
-      if (!sidebar) return;
       sidebar.setAttribute("data-collapsed", collapsedState ? "true" : "false");
       localStorage.setItem("sidebar_collapsed", String(collapsedState));
       document.documentElement.style.setProperty(
@@ -287,14 +441,30 @@ import UserDropdown from "./UserDropdown";
         collapsedState ? "4.5rem" : "16rem",
       );
     };
-
     applyCollapsed();
+    toggle?.addEventListener("click", () => {
+      collapsedState = !collapsedState;
+      applyCollapsed();
+    });
 
-    if (toggle) {
-      toggle.addEventListener("click", () => {
-        collapsedState = !collapsedState;
-        applyCollapsed();
-      });
-    }
-  });
+    // Mobile drawer
+    const setMobileOpen = (open: boolean) => {
+      sidebar.setAttribute("data-mobile-open", open ? "true" : "false");
+      overlay?.classList.toggle("open", open);
+      menuBtn?.setAttribute("aria-expanded", open ? "true" : "false");
+    };
+    setMobileOpen(false);
+    menuBtn?.addEventListener("click", () =>
+      setMobileOpen(sidebar.getAttribute("data-mobile-open") !== "true"),
+    );
+    overlay?.addEventListener("click", () => setMobileOpen(false));
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    });
+    sidebar
+      .querySelectorAll(".sidebar-link")
+      .forEach((a) => a.addEventListener("click", () => setMobileOpen(false)));
+  }
+
+  document.addEventListener("astro:page-load", initSidebar);
 </script>

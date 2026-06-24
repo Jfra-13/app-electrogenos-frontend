@@ -1,0 +1,9 @@
+---
+export const prerender = false;
+import IntranetLayout from "../../../layouts/IntranetLayout.astro";
+import RankingReport from "../../../features/reportes/components/RankingReport";
+---
+
+<IntranetLayout title="Ranking de Clientes">
+  <RankingReport client:load />
+</IntranetLayout>

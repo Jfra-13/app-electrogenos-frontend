@@ -25,6 +25,10 @@ export type SolicitudCompraResponseDTO = {
   grupoId: number;
   grupoCodigo: string;
   precioVentaUnitario: number;
+  total: number;
+  // Who registered the sale. Null on legacy sales (pre vendor attribution).
+  vendedorId: number | null;
+  vendedorUsername: string | null;
 };
 
 export type PaginatedResponseDTO<T> = {

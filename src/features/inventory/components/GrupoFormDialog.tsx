@@ -7,6 +7,12 @@ import type {
   TipoCombustible,
 } from "../types";
 import Dropdown from "../../../components/react/Dropdown";
+import {
+  MATERIAL_EJE_LABELS,
+  TIPO_ARRANQUE_LABELS,
+  TIPO_COMBUSTIBLE_LABELS,
+  optionsOf,
+} from "../../../lib/enums";
 
 type FormState = {
   codigo: string;
@@ -178,10 +184,11 @@ export default function GrupoFormDialog({
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="grupo-codigo" className="block text-sm font-medium text-gray-700 mb-2">
                   Código
                 </label>
                 <input
+                  id="grupo-codigo"
                   value={state.codigo}
                   onChange={(e) =>
                     setState((s) => ({ ...s, codigo: e.target.value }))
@@ -192,10 +199,11 @@ export default function GrupoFormDialog({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="grupo-vida-util" className="block text-sm font-medium text-gray-700 mb-2">
                   Vida útil (años)
                 </label>
                 <input
+                  id="grupo-vida-util"
                   value={state.vidaUtil}
                   onChange={(e) =>
                     setState((s) => ({ ...s, vidaUtil: e.target.value }))
@@ -209,10 +217,11 @@ export default function GrupoFormDialog({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="grupo-stock" className="block text-sm font-medium text-gray-700 mb-2">
                   Stock (unidades)
                 </label>
                 <input
+                  id="grupo-stock"
                   value={state.stock}
                   onChange={(e) =>
                     setState((s) => ({ ...s, stock: e.target.value }))
@@ -230,11 +239,7 @@ export default function GrupoFormDialog({
                   Tipo de combustible
                 </label>
                 <Dropdown
-                  options={[
-                    { label: "NAFTA", value: "NAFTA" },
-                    { label: "GAS_NATURAL", value: "GAS_NATURAL" },
-                    { label: "GASOIL", value: "GASOIL" },
-                  ]}
+                  options={optionsOf(TIPO_COMBUSTIBLE_LABELS)}
                   value={state.tipoCombustible}
                   className="min-h-10 w-full"
                   onChange={(val) =>
@@ -251,10 +256,7 @@ export default function GrupoFormDialog({
                   Tipo de arranque
                 </label>
                 <Dropdown
-                  options={[
-                    { label: "AUTOMATICO", value: "AUTOMATICO" },
-                    { label: "MANUAL", value: "MANUAL" },
-                  ]}
+                  options={optionsOf(TIPO_ARRANQUE_LABELS)}
                   value={state.tipoArranque}
                   className="min-h-10 w-full"
                   onChange={(val) =>
@@ -269,10 +271,11 @@ export default function GrupoFormDialog({
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="grupo-p-min" className="block text-sm font-medium text-gray-700 mb-2">
                   P mínima (kVA)
                 </label>
                 <input
+                  id="grupo-p-min"
                   value={state.pMin}
                   onChange={(e) =>
                     setState((s) => ({
@@ -287,10 +290,11 @@ export default function GrupoFormDialog({
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="grupo-p-max" className="block text-sm font-medium text-gray-700 mb-2">
                   P máxima (kVA)
                 </label>
                 <input
+                  id="grupo-p-max"
                   value={state.pMax}
                   onChange={(e) =>
                     setState((s) => ({
@@ -367,10 +371,11 @@ export default function GrupoFormDialog({
             {state.esMovil && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="grupo-cantidad-ruedas" className="block text-sm font-medium text-gray-700 mb-2">
                     Cantidad de ruedas
                   </label>
                   <input
+                    id="grupo-cantidad-ruedas"
                     value={state.cantidadRuedas}
                     onChange={(e) =>
                       setState((s) => ({
@@ -390,8 +395,7 @@ export default function GrupoFormDialog({
                   <Dropdown
                     options={[
                       { label: "Seleccionar", value: "" },
-                      { label: "ACERO", value: "ACERO" },
-                      { label: "ALEACION", value: "ALEACION" },
+                      ...optionsOf(MATERIAL_EJE_LABELS),
                     ]}
                     value={state.materialEje}
                     className="min-h-10 w-full"
@@ -407,10 +411,11 @@ export default function GrupoFormDialog({
             )}
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="grupo-imagen" className="block text-sm font-medium text-gray-700 mb-2">
                 Imagen (opcional)
               </label>
               <input
+                id="grupo-imagen"
                 type="file"
                 accept="image/*"
                 onChange={(e) =>

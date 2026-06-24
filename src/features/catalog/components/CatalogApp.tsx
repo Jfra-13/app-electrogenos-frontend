@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import ProductCard, { type ProductDTO } from "./ProductCard";
-import { getApiBaseUrl } from "../../../lib/api/baseUrl";
+import { listGruposByCombustible } from "../api/catalogApi";
 import type { GrupoElectrogenoDTO } from "../../inventory/types";
 import Dropdown from "../../../components/react/Dropdown";
 
@@ -14,43 +14,6 @@ export default function CatalogApp() {
   const [totalPages, setTotalPages] = useState(1);
 
   const PAGE_SIZE = 6;
-
-  const getJwtTokenFromCookie = () => {
-    const parts = document.cookie.split(";").map((c) => c.trim());
-    const tokenPart = parts.find((c) => c.startsWith("jwt_token="));
-    if (!tokenPart) return undefined;
-    const value = tokenPart.slice("jwt_token=".length);
-    return value || undefined;
-  };
-
-  const getAuthHeaders = (): HeadersInit => {
-    const token = getJwtTokenFromCookie();
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
-  const fetchByTipo = async (tipo: string, pageIndex: number, size: number) => {
-    const url = new URL(
-      "/api/v1/grupos-electrogenos/filtro/combustible",
-      getApiBaseUrl(),
-    );
-    url.searchParams.set("tipo", tipo);
-    url.searchParams.set("page", String(pageIndex));
-    url.searchParams.set("size", String(size));
-    const res = await fetch(url.toString(), {
-      headers: {
-        ...getAuthHeaders(),
-      },
-    });
-
-    if (!res.ok) {
-      throw new Error(`Error cargando catálogo (${res.status})`);
-    }
-
-    return (await res.json()) as {
-      content: GrupoElectrogenoDTO[];
-      totalPages?: number;
-    };
-  };
 
   const mapToProduct = (grupo: GrupoElectrogenoDTO): ProductDTO => {
     const combustibleLabel = grupo.tipoCombustible
@@ -84,7 +47,9 @@ export default function CatalogApp() {
           : PAGE_SIZE;
 
       const responses = await Promise.all(
-        tipos.map((tipo) => fetchByTipo(tipo, page, sizePerTipo)),
+        tipos.map((tipo) =>
+          listGruposByCombustible(tipo, page, sizePerTipo),
+        ),
       );
 
       const merged = responses.flatMap((response) =>
@@ -192,7 +157,7 @@ export default function CatalogApp() {
             Array.from({ length: 6 }).map((_, idx) => (
               <div
                 key={idx}
-                className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm animate-pulse"
+                className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm animate-pulse motion-reduce:animate-none"
               >
                 <div className="w-full h-40 bg-gray-200 rounded-lg mb-4"></div>
                 <div className="h-5 bg-gray-200 rounded-full w-1/4 mb-4"></div>

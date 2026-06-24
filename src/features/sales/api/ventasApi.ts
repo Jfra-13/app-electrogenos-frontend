@@ -1,22 +1,10 @@
 import { getApiBaseUrl } from "../../../lib/api/baseUrl";
+import { ensureOk, getAuthHeaders } from "../../../lib/api/http";
 import type {
   PaginatedResponseDTO,
   SolicitudCompraRequestDTO,
   SolicitudCompraResponseDTO,
 } from "../types";
-
-function getJwtTokenFromCookie(): string | undefined {
-  const parts = document.cookie.split(";").map((c) => c.trim());
-  const tokenPart = parts.find((c) => c.startsWith("jwt_token="));
-  if (!tokenPart) return undefined;
-  const value = tokenPart.slice("jwt_token=".length);
-  return value || undefined;
-}
-
-function getAuthHeaders(): HeadersInit {
-  const token = getJwtTokenFromCookie();
-  return token ? { Authorization: `Bearer ${token}` } : {};
-}
 
 export async function createVenta(
   dto: SolicitudCompraRequestDTO,
@@ -31,26 +19,9 @@ export async function createVenta(
     body: JSON.stringify(dto),
   });
 
-  if (!res.ok) {
-    let message: string | undefined;
-    try {
-      const data = (await res.json()) as { message?: string } | undefined;
-      message = data?.message;
-    } catch (e) {
-      // Ignore JSON parse errors.
-    }
-
-    if (!message) {
-      try {
-        const errorText = await res.text();
-        message = errorText || undefined;
-      } catch (e) {
-        // Ignore read errors.
-      }
-    }
-
-    throw new Error(message || `Error creando venta (${res.status})`);
-  }
+  // ensureOk throws ApiError (carries status) so the UI can branch on 409
+  // (stock insuficiente) and 403 (sin rol).
+  await ensureOk(res, `Error creando venta (${res.status})`);
 
   return (await res.json()) as SolicitudCompraResponseDTO;
 }
@@ -59,6 +30,9 @@ export async function listVentas(options?: {
   page?: number;
   size?: number;
   sort?: string;
+  // ADMIN only: filter by seller. The backend ignores it for EMPLEADO (always
+  // scoped to their own sales).
+  vendedorId?: number;
 }): Promise<PaginatedResponseDTO<SolicitudCompraResponseDTO>> {
   const page = options?.page ?? 0;
   const size = options?.size ?? 10;
@@ -67,6 +41,9 @@ export async function listVentas(options?: {
   url.searchParams.set("page", String(page));
   url.searchParams.set("size", String(size));
   url.searchParams.set("sort", sort);
+  if (typeof options?.vendedorId === "number") {
+    url.searchParams.set("vendedorId", String(options.vendedorId));
+  }
 
   const res = await fetch(url.toString(), {
     headers: {
@@ -74,9 +51,8 @@ export async function listVentas(options?: {
     },
   });
 
-  if (!res.ok) {
-    throw new Error(`Error listando ventas (${res.status})`);
-  }
+  // ensureOk throws ApiError (carries status) so the UI can branch on 403.
+  await ensureOk(res, `Error listando ventas (${res.status})`);
 
   return (await res.json()) as PaginatedResponseDTO<SolicitudCompraResponseDTO>;
 }

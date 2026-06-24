@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { getApiBaseUrl } from "../../../lib/api/baseUrl";
+import { login } from "../api/authApi";
 
 export default function LoginForm() {
   const [username, setUsername] = useState("");
@@ -13,23 +13,9 @@ export default function LoginForm() {
     setError("");
 
     try {
-      const url = new URL("/api/v1/auth/login", getApiBaseUrl());
-      const res = await fetch(url.toString(), {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
+      const token = await login(username, password);
 
-      const data = (await res.json()) as {
-        token?: string;
-        message?: string;
-      };
-
-      if (!res.ok || !data.token) {
-        throw new Error(data.message || "Credenciales inválidas");
-      }
-
-      const cookieValue = encodeURIComponent(data.token);
+      const cookieValue = encodeURIComponent(token);
       document.cookie = `jwt_token=${cookieValue}; path=/; max-age=3600; SameSite=Lax`;
 
       const cookieOk = document.cookie.includes("jwt_token=");
@@ -62,10 +48,11 @@ export default function LoginForm() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="login-username" className="block text-sm font-medium text-gray-700 mb-2">
             Usuario
           </label>
           <input
+            id="login-username"
             type="text"
             required
             value={username}
@@ -76,10 +63,11 @@ export default function LoginForm() {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label htmlFor="login-password" className="block text-sm font-medium text-gray-700 mb-2">
             Contraseña
           </label>
           <input
+            id="login-password"
             type="password"
             required
             value={password}

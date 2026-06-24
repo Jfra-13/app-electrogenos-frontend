@@ -1,0 +1,202 @@
+---
+// Identity read SSR from the JWT cookie. The token only carries `sub`
+// (username) and `roles` — no email — so we render those two only.
+import { getUsername, isAdmin, isEmpleado } from "../../../lib/api/jwt";
+
+const token = Astro.cookies.get("jwt_token")?.value;
+const username = getUsername(token) ?? "Usuario";
+const roleLabel = isAdmin(token)
+  ? "ADMIN"
+  : isEmpleado(token)
+    ? "EMPLEADO"
+    : "USER";
+const initials = username.slice(0, 2).toUpperCase();
+---
+
+<div class="user-block">
+  <div class="user-identity">
+    <div class="user-avatar">{initials}</div>
+    <div class="user-meta">
+      <p class="user-name">{username}</p>
+      <p class="user-role">{roleLabel}</p>
+    </div>
+  </div>
+
+  <div class="user-actions">
+    <button
+      type="button"
+      class="user-action"
+      aria-label="Notificaciones"
+      title="Notificaciones"
+    >
+      <svg
+        class="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+        ></path>
+      </svg>
+      <span class="label">Notificaciones</span>
+    </button>
+
+    <button
+      id="logout-btn"
+      type="button"
+      class="user-action logout"
+      aria-label="Cerrar sesión"
+      title="Cerrar sesión"
+    >
+      <svg
+        class="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+        aria-hidden="true"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+        ></path>
+      </svg>
+      <span class="label">Cerrar sesión</span>
+    </button>
+  </div>
+</div>
+
+<style>
+  .user-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .user-identity {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.25rem 0.4rem;
+  }
+
+  .user-avatar {
+    flex-shrink: 0;
+    height: 2.25rem;
+    width: 2.25rem;
+    border-radius: 9999px;
+    background: #f97316;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .user-meta {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+
+  .user-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #111827;
+    line-height: 1.15;
+  }
+
+  .user-role {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ea580c;
+  }
+
+  .user-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding-top: 0.5rem;
+    border-top: 1px solid #f3f4f6;
+  }
+
+  .user-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0.9rem;
+    border-radius: 0.6rem;
+    color: #374151;
+    font-size: 0.8rem;
+    font-weight: 500;
+    transition:
+      background 150ms ease,
+      color 150ms ease;
+  }
+
+  .user-action svg {
+    flex-shrink: 0;
+  }
+
+  .user-action:hover {
+    background: #f3f4f6;
+    color: #111827;
+  }
+
+  .user-action.logout {
+    color: #dc2626;
+  }
+
+  .user-action.logout:hover {
+    background: #fef2f2;
+    color: #b91c1c;
+  }
+
+  /* Collapsed rail (desktop only): icon-only, centered, no text overflow.
+     Astro scopes the Sidebar's styles to its own component, so the footer
+     must read the collapsed state itself via :global on the ancestor.
+     :not(:hover) lets the hover-expand restore the base layout for free. */
+  @media (min-width: 1025px) {
+    :global(.sidebar[data-collapsed="true"]:not(:hover)) .user-meta,
+    :global(.sidebar[data-collapsed="true"]:not(:hover)) .user-action .label {
+      display: none;
+    }
+
+    :global(.sidebar[data-collapsed="true"]:not(:hover)) .user-identity {
+      justify-content: center;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    :global(.sidebar[data-collapsed="true"]:not(:hover)) .user-action {
+      justify-content: center;
+      padding-left: 0;
+      padding-right: 0;
+    }
+  }
+</style>
+
+<script>
+  // Logout: clear the jwt_token cookie and redirect. astro:page-load survives
+  // view-transition navigation (DOMContentLoaded would not).
+  function initLogout() {
+    const btn = document.getElementById("logout-btn");
+    btn?.addEventListener("click", () => {
+      document.cookie =
+        "jwt_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT";
+      window.location.href = "/login";
+    });
+  }
+
+  document.addEventListener("astro:page-load", initLogout);
+</script>

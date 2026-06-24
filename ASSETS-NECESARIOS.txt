@@ -1,0 +1,35 @@
+================================================================
+ASSETS NECESARIOS — Electrogen Front
+================================================================
+
+Lista de imágenes/assets RASTER que debe aportar el usuario.
+Se completa al final, cuando terminen todas las fases del PLAN.md.
+
+NOTA: los SVG decorativos (circuito del hero, línea de pulso, íconos,
+logo wordmark) se generan en código y NO van en esta lista.
+Las fotos de los grupos electrógenos NO van aquí: se suben por la API
+(POST /api/v1/grupos-electrogenos/{id}/imagen) y se sirven vía imageUrl.
+
+Formato de cada entrada:
+  [ ] ruta/destino — descripción de la imagen — dimensiones sugeridas
+
+----------------------------------------------------------------
+PENDIENTES (semilla inicial — crecerá durante las fases)
+----------------------------------------------------------------
+
+[ ] public/favicon.svg
+    — Favicon: ícono de rayo (Zap) en naranja sobre fondo transparente.
+    — 32x32 (SVG escalable). Puede generarse en código; confirmar con usuario.
+
+[ ] public/og-image.png
+    — Imagen para compartir en redes (Open Graph) de la landing.
+    — 1200x630 px.
+
+[ ] public/placeholder-grupo.webp
+    — Imagen de respaldo para cards de catálogo cuando el grupo
+      no tiene imageUrl (Fase 4.3 / 5.3).
+    — ~600x400 px, estilo neutro industrial.
+
+----------------------------------------------------------------
+(Se agregarán más entradas aquí conforme avancen las fases)
+----------------------------------------------------------------

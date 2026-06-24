@@ -1,0 +1,9 @@
+---
+export const prerender = false;
+import IntranetLayout from "../../layouts/IntranetLayout.astro";
+import InventoryManager from "../../features/inventory/components/InventoryManager";
+---
+
+<IntranetLayout title="Grupos Electrógenos">
+  <InventoryManager client:visible />
+</IntranetLayout>

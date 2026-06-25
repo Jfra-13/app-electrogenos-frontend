@@ -86,14 +86,16 @@
     class="absolute bottom-0 left-0 h-1 bg-orange-500 w-0 transition-all duration-75"
   >
   </div>
+</header>
 
-  <!-- Menú Móvil (Simplificado sin web components extraños) -->
-  <div
-    id="mobile-menu"
-    class="hidden relative z-50 lg:hidden"
-    role="dialog"
-    aria-modal="true"
-  >
+<!-- Menú Móvil — fuera del <header> a propósito: el backdrop-filter del header
+     atraparía estos hijos position:fixed en su containing block. -->
+<div
+  id="mobile-menu"
+  class="hidden relative z-50 lg:hidden"
+  role="dialog"
+  aria-modal="true"
+>
     <!-- Overlay de fondo -->
     <div
       class="fixed inset-0 bg-gray-900/80 backdrop-blur-sm transition-opacity"
@@ -166,70 +168,62 @@
       </div>
     </div>
   </div>
-</header>
-
 <script>
-  // Lógica de cliente en Astro
-  document.addEventListener("DOMContentLoaded", () => {
-    // Referencias al DOM
+  // 1. Efecto Scroll — queries fresh DOM each call so it survives ClientRouter swaps.
+  function onScroll() {
     const header = document.getElementById("main-header");
     const progressBar = document.getElementById("scroll-progress-bar");
-    const openBtn = document.getElementById("open-mobile-menu");
-    const closeBtn = document.getElementById("close-mobile-menu");
-    const mobileMenu = document.getElementById("mobile-menu");
+    const scrollTop =
+      document.documentElement.scrollTop || document.body.scrollTop;
 
-    // 1. Efecto Scroll (Sombra, Blur y Barra de Progreso)
-    window.addEventListener("scroll", () => {
-      const scrollTop =
-        document.documentElement.scrollTop || document.body.scrollTop;
-
-      // Control visual del header (fondo desenfocado y sombra)
+    if (header) {
       if (scrollTop > 20) {
-        if (header) {
-          header.classList.add("shadow-md", "bg-white/80", "backdrop-blur-md");
-          header.classList.remove("bg-white");
-        }
+        header.classList.add("shadow-md", "bg-white/80", "backdrop-blur-md");
+        header.classList.remove("bg-white");
       } else {
-        if (header) {
-          header.classList.remove(
-            "shadow-md",
-            "bg-white/80",
-            "backdrop-blur-md",
-          );
-          header.classList.add("bg-white");
-        }
+        header.classList.remove("shadow-md", "bg-white/80", "backdrop-blur-md");
+        header.classList.add("bg-white");
       }
+    }
 
-      // Control de la barra de progreso inferior
+    if (progressBar) {
       const scrollHeight =
         document.documentElement.scrollHeight || document.body.scrollHeight;
       const clientHeight =
         document.documentElement.clientHeight || window.innerHeight;
-      const scrolledPercentage =
-        (scrollTop / (scrollHeight - clientHeight)) * 100;
+      progressBar.style.width = `${(scrollTop / (scrollHeight - clientHeight)) * 100}%`;
+    }
+  }
 
-      if (progressBar) {
-        progressBar.style.width = `${scrolledPercentage}%`;
-      }
-    });
+  // 2. Re-bind menu buttons every page-load (DOM is replaced on view transitions).
+  function initHeader() {
+    const openBtn = document.getElementById("open-mobile-menu");
+    const closeBtn = document.getElementById("close-mobile-menu");
+    const mobileMenu = document.getElementById("mobile-menu");
 
-    // 2. Control del Menú Móvil
     if (openBtn && closeBtn && mobileMenu) {
       openBtn.addEventListener("click", () => {
         mobileMenu.classList.remove("hidden");
       });
-
       closeBtn.addEventListener("click", () => {
         mobileMenu.classList.add("hidden");
       });
-
-      // Cierra el menú al hacer click en cualquiera de los enlaces (ideal para navegación single-page con #)
-      const mobileLinks = mobileMenu.querySelectorAll("a");
-      mobileLinks.forEach((link) => {
+      mobileMenu.querySelectorAll("a").forEach((link) => {
         link.addEventListener("click", () => {
           mobileMenu.classList.add("hidden");
         });
       });
     }
-  });
+
+    onScroll(); // sync header state for the current scroll position
+  }
+
+  // window persists across view transitions — attach scroll once.
+  if (!(window as any).__headerScrollBound) {
+    window.addEventListener("scroll", onScroll);
+    (window as any).__headerScrollBound = true;
+  }
+
+  document.addEventListener("DOMContentLoaded", initHeader);
+  document.addEventListener("astro:page-load", initHeader);
 </script>

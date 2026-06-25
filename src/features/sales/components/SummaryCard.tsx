@@ -10,17 +10,11 @@ import { formatPEN } from "../../../lib/format";
 
 export default function SummaryCard({
   data,
+  onNewSale,
 }: {
-  data?: SolicitudCompraResponseDTO | null;
+  data: SolicitudCompraResponseDTO;
+  onNewSale: () => void;
 }) {
-  if (!data) {
-    return (
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 text-sm text-gray-500">
-        Completa el formulario para ver el resumen de la solicitud.
-      </div>
-    );
-  }
-
   return (
     <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6 space-y-4">
       <div>
@@ -87,7 +81,27 @@ export default function SummaryCard({
             {formatPEN(data.precioVentaUnitario)}
           </span>
         </div>
+        <div className="flex justify-between gap-4 border-t border-gray-100 pt-3">
+          <span className="text-gray-500">Total</span>
+          <span className="font-bold text-blue-950">
+            {formatPEN(data.total)}
+          </span>
+        </div>
+        <div className="flex justify-between gap-4">
+          <span className="text-gray-500">Vendedor</span>
+          <span className="font-semibold text-gray-900">
+            {data.vendedorUsername ?? "—"}
+          </span>
+        </div>
       </div>
+
+      <button
+        type="button"
+        onClick={onNewSale}
+        className="w-full bg-orange-500 text-white py-3 rounded-lg font-semibold hover:bg-orange-600"
+      >
+        Nueva venta
+      </button>
     </div>
   );
 }

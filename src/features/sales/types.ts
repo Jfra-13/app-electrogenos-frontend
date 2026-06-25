@@ -9,6 +9,9 @@ export type SolicitudCompraRequestDTO = {
   tipoCombustible: TipoCombustible;
   vidaUtilSolicitada: number;
   entidadId: number;
+  // Model B: when present the backend sells THIS exact group (validates stock,
+  // freezes its price). Absent -> falls back to tasación (backward compatible).
+  grupoCodigo?: string;
 };
 
 export type SolicitudCompraResponseDTO = {

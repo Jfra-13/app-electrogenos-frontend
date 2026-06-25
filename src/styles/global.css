@@ -16,3 +16,46 @@ html {
   color: var(--color-text);
   background-color: var(--color-background);
 }
+
+/* Success modal enter/exit. Native <dialog> + @starting-style, no JS animation.
+   allow-discrete lets display/overlay animate so the exit is visible too. */
+dialog.success-dialog {
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease,
+    overlay 0.2s ease allow-discrete,
+    display 0.2s ease allow-discrete;
+}
+dialog.success-dialog[open] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+@starting-style {
+  dialog.success-dialog[open] {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+dialog.success-dialog::backdrop {
+  background: rgb(0 0 0 / 0);
+  transition:
+    background 0.2s ease,
+    overlay 0.2s ease allow-discrete,
+    display 0.2s ease allow-discrete;
+}
+dialog.success-dialog[open]::backdrop {
+  background: rgb(0 0 0 / 0.4);
+}
+@starting-style {
+  dialog.success-dialog[open]::backdrop {
+    background: rgb(0 0 0 / 0);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog.success-dialog,
+  dialog.success-dialog::backdrop {
+    transition: none;
+  }
+}

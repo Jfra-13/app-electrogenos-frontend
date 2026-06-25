@@ -67,6 +67,14 @@ const allSections: NavSection[] = [
     label: "Administración",
     items: [
       {
+        href: "/admin/clientes",
+        label: "Clientes",
+        roles: ["ADMIN", "EMPLEADO"],
+        paths: [
+          "M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1a4 4 0 100-8 4 4 0 000 8zm6-9a3 3 0 11-6 0 3 3 0 016 0z",
+        ],
+      },
+      {
         href: "/admin/usuarios",
         label: "Empleados",
         roles: ["ADMIN"],
@@ -129,8 +137,8 @@ const sections: NavSection[] = allSections
       />
       <div class="sidebar-label">
         <span class="text-orange-500 font-bold text-lg tracking-wider">ELECTROGEN</span>
-        <p class="text-xs text-gray-400 mt-1 uppercase tracking-widest font-semibold">
-          Intranet / Admin
+        <p class="text-xs text-gray-400 mt-1 uppercase tracking-[0.2em] font-semibold">
+          Intranet
         </p>
       </div>
     </div>

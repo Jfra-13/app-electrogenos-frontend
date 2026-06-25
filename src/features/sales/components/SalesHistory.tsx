@@ -7,6 +7,8 @@ import { formatPEN } from "../../../lib/format";
 import { Skeleton } from "../../../components/react/ui/Skeleton";
 import { ApiError } from "../../../lib/api/http";
 import { isAdmin } from "../../../lib/api/jwt";
+import { listUsuarios } from "../../usuarios/api/usuariosApi";
+import type { UsuarioDTO } from "../../usuarios/types";
 
 export default function SalesHistory() {
   const [rows, setRows] = useState<SolicitudCompraResponseDTO[]>([]);
@@ -19,10 +21,16 @@ export default function SalesHistory() {
   const [admin, setAdmin] = useState(false);
   useEffect(() => setAdmin(isAdmin()), []);
 
-  // ADMIN-only seller filter. `vendedorId` is the committed value sent to the
-  // API; `filterInput` is the raw text being typed.
+  // ADMIN-only seller filter. The backend only filters by `vendedorId` (numeric),
+  // so we list sellers by name and send the chosen one's id under the hood.
   const [vendedorId, setVendedorId] = useState<number | undefined>(undefined);
-  const [filterInput, setFilterInput] = useState("");
+  const [vendedores, setVendedores] = useState<UsuarioDTO[]>([]);
+  useEffect(() => {
+    if (!admin) return;
+    listUsuarios()
+      .then(setVendedores)
+      .catch(() => setVendedores([]));
+  }, [admin]);
 
   const fetchPage = async (pageIndex: number, seller?: number) => {
     setLoading(true);
@@ -52,19 +60,6 @@ export default function SalesHistory() {
     fetchPage(page, vendedorId);
   }, [page, vendedorId]);
 
-  const applyFilter = () => {
-    const n = Number(filterInput.trim());
-    const next = Number.isInteger(n) && n > 0 ? n : undefined;
-    setPage(0);
-    setVendedorId(next);
-  };
-
-  const clearFilter = () => {
-    setFilterInput("");
-    setPage(0);
-    setVendedorId(undefined);
-  };
-
   return (
     <section className="space-y-6">
       <div>
@@ -85,36 +80,25 @@ export default function SalesHistory() {
               htmlFor="filtro-vendedor"
               className="block text-sm font-medium text-gray-700 mb-2"
             >
-              Filtrar por ID de vendedor
+              Filtrar por vendedor
             </label>
-            <input
+            <select
               id="filtro-vendedor"
-              value={filterInput}
-              onChange={(e) => setFilterInput(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") applyFilter();
+              value={vendedorId ?? ""}
+              onChange={(e) => {
+                setPage(0);
+                setVendedorId(e.target.value ? Number(e.target.value) : undefined);
               }}
-              inputMode="numeric"
-              className="w-48 px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
-              placeholder="Ej. 5"
-            />
-          </div>
-          <button
-            type="button"
-            onClick={applyFilter}
-            className="px-4 py-2.5 rounded-lg bg-blue-950 text-white font-semibold hover:bg-blue-900"
-          >
-            Aplicar
-          </button>
-          {vendedorId !== undefined && (
-            <button
-              type="button"
-              onClick={clearFilter}
-              className="px-4 py-2.5 rounded-lg border border-gray-300 text-gray-700 bg-white hover:bg-gray-50"
+              className="w-56 px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
             >
-              Limpiar
-            </button>
-          )}
+              <option value="">Todos los vendedores</option>
+              {vendedores.map((v) => (
+                <option key={v.id} value={v.id}>
+                  {v.username}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       )}
 
@@ -153,7 +137,10 @@ export default function SalesHistory() {
                   Pago
                 </th>
                 <th className="px-6 py-4 text-xs font-semibold tracking-wider uppercase text-gray-500">
-                  Precio
+                  P. Unitario
+                </th>
+                <th className="px-6 py-4 text-xs font-semibold tracking-wider uppercase text-gray-500">
+                  Total
                 </th>
               </tr>
             </thead>
@@ -181,15 +168,18 @@ export default function SalesHistory() {
                       {labelOf(TIPO_PAGO_LABELS, row.tipoPago)}
                     </Badge>
                   </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                  <td className="px-6 py-4 text-sm text-gray-700">
                     {formatPEN(row.precioVentaUnitario)}
+                  </td>
+                  <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                    {formatPEN(row.total)}
                   </td>
                 </tr>
               ))}
               {rows.length === 0 && (
                 <tr>
                   <td
-                    colSpan={admin ? 6 : 5}
+                    colSpan={admin ? 7 : 6}
                     className="px-6 py-10 text-sm text-gray-500 text-center"
                   >
                     No hay ventas registradas.

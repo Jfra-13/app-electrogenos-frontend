@@ -26,6 +26,11 @@ const { title } = Astro.props;
         .intranet-body {
           padding-left: 0;
         }
+
+        /* Clear the fixed floating menu button (top:1rem + 2.75rem tall). */
+        .intranet-content > main {
+          padding-top: 4.5rem;
+        }
       }
 
       /* Floating drawer trigger — only on mobile, where the sidebar is off-canvas. */

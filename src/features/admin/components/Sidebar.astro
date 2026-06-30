@@ -291,6 +291,21 @@ const sections: NavSection[] = allSections
     padding: 1rem 0.75rem;
     flex: 1;
     overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db transparent;
+  }
+
+  .sidebar-nav::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .sidebar-nav::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 9999px;
+  }
+
+  .sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
   }
 
   .sidebar-section {

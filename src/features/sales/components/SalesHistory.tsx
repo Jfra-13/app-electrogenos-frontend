@@ -9,6 +9,9 @@ import { ApiError } from "../../../lib/api/http";
 import { isAdmin } from "../../../lib/api/jwt";
 import { listUsuarios } from "../../usuarios/api/usuariosApi";
 import type { UsuarioDTO } from "../../usuarios/types";
+import AnularDialog from "./AnularDialog";
+import EditarVentaDialog from "./EditarVentaDialog";
+import { formatDateTime } from "../../../lib/format";
 
 export default function SalesHistory() {
   const [rows, setRows] = useState<SolicitudCompraResponseDTO[]>([]);
@@ -59,6 +62,10 @@ export default function SalesHistory() {
   useEffect(() => {
     fetchPage(page, vendedorId);
   }, [page, vendedorId]);
+
+  // Sales targeted by the annul / edit dialogs (null = closed). ADMIN only.
+  const [anular, setAnular] = useState<SolicitudCompraResponseDTO | null>(null);
+  const [editar, setEditar] = useState<SolicitudCompraResponseDTO | null>(null);
 
   return (
     <section className="space-y-6">
@@ -142,44 +149,104 @@ export default function SalesHistory() {
                 <th className="px-6 py-4 text-xs font-semibold tracking-wider uppercase text-gray-500">
                   Total
                 </th>
+                <th className="px-6 py-4 text-xs font-semibold tracking-wider uppercase text-gray-500">
+                  Estado
+                </th>
+                {admin && (
+                  <th className="px-6 py-4 text-xs font-semibold tracking-wider uppercase text-gray-500 text-right">
+                    Acciones
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {rows.map((row) => (
-                <tr key={row.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 text-sm font-semibold text-blue-950">
-                    {row.identificador}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
-                    {row.nombreSolicitante}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
-                    {row.grupoCodigo}
-                  </td>
-                  {admin && (
-                    <td className="px-6 py-4 text-sm text-gray-700">
-                      {row.vendedorUsername ?? "—"}
+              {rows.map((row) => {
+                const anulada = row.estado === "ANULADA";
+                return (
+                  <tr
+                    key={row.id}
+                    className={
+                      anulada
+                        ? "bg-gray-50 text-gray-400 [&_td]:line-through"
+                        : "hover:bg-gray-50"
+                    }
+                  >
+                    <td className="px-6 py-4 text-sm font-semibold text-blue-950">
+                      {row.identificador}
                     </td>
-                  )}
-                  <td className="px-6 py-4">
-                    <Badge
-                      tone={row.tipoPago === "EFECTIVO" ? "success" : "info"}
-                    >
-                      {labelOf(TIPO_PAGO_LABELS, row.tipoPago)}
-                    </Badge>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700">
-                    {formatPEN(row.precioVentaUnitario)}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-semibold text-gray-900">
-                    {formatPEN(row.total)}
-                  </td>
-                </tr>
-              ))}
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      {row.nombreSolicitante}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      {row.grupoCodigo}
+                    </td>
+                    {admin && (
+                      <td className="px-6 py-4 text-sm text-gray-700">
+                        {row.vendedorUsername ?? "—"}
+                      </td>
+                    )}
+                    <td className="px-6 py-4">
+                      <Badge
+                        tone={row.tipoPago === "EFECTIVO" ? "success" : "info"}
+                      >
+                        {labelOf(TIPO_PAGO_LABELS, row.tipoPago)}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-gray-700">
+                      {formatPEN(row.precioVentaUnitario)}
+                    </td>
+                    <td className="px-6 py-4 text-sm font-semibold text-gray-900">
+                      {formatPEN(row.total)}
+                    </td>
+                    <td className="px-6 py-4">
+                      {anulada ? (
+                        // Reason + who/when on hover. Native title, no tooltip lib.
+                        <span
+                          title={
+                            row.motivoAnulacion
+                              ? `${row.motivoAnulacion} — ${row.anuladaPor ?? "?"} · ${formatDateTime(row.anuladaAt)}`
+                              : undefined
+                          }
+                        >
+                          <Badge tone="danger" className="no-underline">
+                            ANULADA
+                          </Badge>
+                        </span>
+                      ) : (
+                        <Badge tone="success" className="no-underline">
+                          ACTIVA
+                        </Badge>
+                      )}
+                    </td>
+                    {admin && (
+                      <td className="px-6 py-4 text-right">
+                        {!anulada && (
+                          <div className="flex justify-end gap-4">
+                            <button
+                              type="button"
+                              onClick={() => setEditar(row)}
+                              className="text-sm font-semibold text-blue-700 hover:text-blue-900"
+                            >
+                              Editar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setAnular(row)}
+                              className="text-sm font-semibold text-red-600 hover:text-red-700"
+                            >
+                              Anular
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    )}
+                  </tr>
+                );
+              })}
               {rows.length === 0 && (
                 <tr>
                   <td
-                    colSpan={admin ? 7 : 6}
+                    colSpan={admin ? 9 : 7}
                     className="px-6 py-10 text-sm text-gray-500 text-center"
                   >
                     No hay ventas registradas.
@@ -210,6 +277,27 @@ export default function SalesHistory() {
           Siguiente
         </button>
       </div>
+
+      {admin && (
+        <>
+          <AnularDialog
+            venta={anular}
+            onClose={() => setAnular(null)}
+            onChanged={() => {
+              setAnular(null);
+              fetchPage(page, vendedorId);
+            }}
+          />
+          <EditarVentaDialog
+            venta={editar}
+            onClose={() => setEditar(null)}
+            onChanged={() => {
+              setEditar(null);
+              fetchPage(page, vendedorId);
+            }}
+          />
+        </>
+      )}
     </section>
   );
 }

@@ -1,5 +1,6 @@
 export type TipoPago = "CHEQUE" | "EFECTIVO";
 export type TipoCombustible = "NAFTA" | "GAS_NATURAL" | "GASOIL";
+export type EstadoVenta = "ACTIVA" | "ANULADA";
 
 export type SolicitudCompraRequestDTO = {
   nombreSolicitante: string;
@@ -32,6 +33,23 @@ export type SolicitudCompraResponseDTO = {
   // Who registered the sale. Null on legacy sales (pre vendor attribution).
   vendedorId: number | null;
   vendedorUsername: string | null;
+  // Anulación (soft-delete). Legacy/active sales come back as ACTIVA with the
+  // audit fields null. A sale is never deleted: it is annulled with a trail.
+  estado: EstadoVenta;
+  motivoAnulacion: string | null;
+  anuladaAt: string | null;
+  anuladaPor: string | null;
+};
+
+// Body for POST /ventas/{id}/anulacion. `motivo` is required (NotBlank).
+export type AnulacionRequestDTO = {
+  motivo: string;
+};
+
+// Body for the now-narrowed PUT /ventas/{id}: only the solicitant name is
+// editable. Everything financial is immutable — annul and recreate instead.
+export type SolicitudCompraUpdateDTO = {
+  nombreSolicitante: string;
 };
 
 export type PaginatedResponseDTO<T> = {

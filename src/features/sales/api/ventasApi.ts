@@ -4,6 +4,7 @@ import type {
   PaginatedResponseDTO,
   SolicitudCompraRequestDTO,
   SolicitudCompraResponseDTO,
+  SolicitudCompraUpdateDTO,
 } from "../types";
 
 export async function createVenta(
@@ -55,4 +56,46 @@ export async function listVentas(options?: {
   await ensureOk(res, `Error listando ventas (${res.status})`);
 
   return (await res.json()) as PaginatedResponseDTO<SolicitudCompraResponseDTO>;
+}
+
+// Annuls a sale (soft-delete): restores stock, leaves an audit trail, drops it
+// from financial reports. ADMIN only. 409 = already annulled, 403 = not ADMIN.
+export async function anularVenta(
+  id: number,
+  motivo: string,
+): Promise<SolicitudCompraResponseDTO> {
+  const url = new URL(`/api/v1/ventas/${id}/anulacion`, getApiBaseUrl());
+  const res = await fetch(url.toString(), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify({ motivo }),
+  });
+
+  await ensureOk(res, `Error anulando venta (${res.status})`);
+
+  return (await res.json()) as SolicitudCompraResponseDTO;
+}
+
+// Narrowed PUT: only `nombreSolicitante` is editable. ADMIN only.
+// 409 = the sale is annulled (cannot be edited).
+export async function actualizarVenta(
+  id: number,
+  dto: SolicitudCompraUpdateDTO,
+): Promise<SolicitudCompraResponseDTO> {
+  const url = new URL(`/api/v1/ventas/${id}`, getApiBaseUrl());
+  const res = await fetch(url.toString(), {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...getAuthHeaders(),
+    },
+    body: JSON.stringify(dto),
+  });
+
+  await ensureOk(res, `Error actualizando venta (${res.status})`);
+
+  return (await res.json()) as SolicitudCompraResponseDTO;
 }

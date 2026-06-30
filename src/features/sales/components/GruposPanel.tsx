@@ -4,6 +4,7 @@ import { listGruposElectrogenos } from "../../inventory/api/gruposElectrogenosAp
 import {
   TIPO_COMBUSTIBLE_LABELS,
   TIPO_ARRANQUE_LABELS,
+  MATERIAL_EJE_LABELS,
   labelOf,
 } from "../../../lib/enums";
 import { formatPEN } from "../../../lib/format";
@@ -197,6 +198,7 @@ export default function GruposPanel({
                 <th className="py-2 pr-4 font-medium">Combustible</th>
                 <th className="py-2 pr-4 font-medium">Arranque</th>
                 <th className="py-2 pr-4 font-medium">Capó</th>
+                <th className="py-2 pr-4 font-medium">Insonorizado</th>
                 <th className="py-2 pr-4 font-medium">Potencia (kVA)</th>
                 <th className="py-2 pr-4 font-medium">Precio</th>
                 <th className="py-2 pr-4 font-medium">Stock</th>
@@ -218,7 +220,32 @@ export default function GruposPanel({
                       {g.codigo}
                     </td>
                     <td className="py-2 pr-4 text-gray-600">
-                      {g.tipoGrupo ?? (esMovil(g) ? "Móvil" : "Fijo")}
+                      <span className="inline-flex items-center gap-1.5">
+                        {g.tipoGrupo ?? (esMovil(g) ? "Móvil" : "Fijo")}
+                        {esMovil(g) && (
+                          <span className="group relative inline-flex">
+                            <button
+                              type="button"
+                              aria-label="Detalle de movilidad"
+                              className="h-4 w-4 inline-flex items-center justify-center rounded-full bg-orange-100 text-orange-600 text-[10px] font-bold leading-none focus:outline-none focus:ring-2 focus:ring-orange-400"
+                            >
+                              !
+                            </button>
+                            <span
+                              role="tooltip"
+                              className="pointer-events-none absolute left-1/2 bottom-full z-10 mb-1 hidden -translate-x-1/2 whitespace-nowrap rounded-lg bg-blue-950 px-2.5 py-1.5 text-xs font-medium text-white shadow-lg group-hover:block group-focus-within:block"
+                            >
+                              {g.cantidadRuedas != null
+                                ? `${g.cantidadRuedas} ruedas`
+                                : "Ruedas n/d"}
+                              {" · "}
+                              {g.materialEje
+                                ? `Eje ${labelOf(MATERIAL_EJE_LABELS, g.materialEje)}`
+                                : "Eje n/d"}
+                            </span>
+                          </span>
+                        )}
+                      </span>
                     </td>
                     <td className="py-2 pr-4 text-gray-600">
                       {labelOf(TIPO_COMBUSTIBLE_LABELS, g.tipoCombustible)}
@@ -228,6 +255,9 @@ export default function GruposPanel({
                     </td>
                     <td className="py-2 pr-4 text-gray-600">
                       {g.capo ? "Sí" : "—"}
+                    </td>
+                    <td className="py-2 pr-4 text-gray-600">
+                      {g.insonorizado ? "Sí" : "—"}
                     </td>
                     <td className="py-2 pr-4 text-gray-600">
                       {g.pMin} – {g.pMax}

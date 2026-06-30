@@ -8,6 +8,20 @@ export function formatPEN(n: number | null | undefined): string {
   });
 }
 
+// ISO datetime -> short es-PE label. Returns "—" for null/invalid input.
+export function formatDateTime(iso: string | null | undefined): string {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleString("es-PE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 // Power range label. Falls back gracefully when only one bound is known.
 export function formatPotencia(
   min: number | null | undefined,
